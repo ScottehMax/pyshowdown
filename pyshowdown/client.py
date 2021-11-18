@@ -72,6 +72,15 @@ class Client:
             message (str): The message to send.
         """
         await self.conn.send(f"{room}|{message}")
+    
+    async def send_pm(self, user: str, message: str):
+        """Sends a private message to the user.
+
+        Args:
+            user (str): The user to send the message to.
+            message (str): The message to send.
+        """
+        await self.send("", f"/w {user}, {message}")
 
     async def receive(self) -> str:
         """Receives data from the server.
@@ -130,7 +139,10 @@ class Client:
             if matched:
                 resp = await plugin.response(m)
                 if resp:
-                    await self.send(m.room, resp)
+                    if m.type == "pm":
+                        await self.send_pm(m.sender, resp)
+                    else:
+                        await self.send(m.room, resp)
 
     def __str__(self) -> str:
         """Returns a string representation of the client.
