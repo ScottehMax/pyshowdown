@@ -35,20 +35,18 @@ class Message:
             for u in users:
                 rank = u[0]
                 u = u[1:]
-                if '@' in u:
-                    name, status = u.split('@')
+                if "@" in u:
+                    name, status = u.split("@")
                 else:
                     name, status = u, ""
-                
-                if status and status[0] == '!':
+
+                if status and status[0] == "!":
                     away = True
                     status = status[1:]
                 else:
                     away = False
 
-                self.users.append(
-                    (rank, name, status, away)
-                )
+                self.users.append((rank, name, status, away))
 
         # Room messages
         elif self.type == "html":

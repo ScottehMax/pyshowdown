@@ -19,10 +19,10 @@ class MessageTest(unittest.TestCase):
     def test_users(self):
         m = message.Message("", "|users|4,@foo@!,+bar@!,@baz@!,%quux")
         expected = [
-            ('@', 'foo', '', True),
-            ('+', 'bar', '', True),
-            ('@', 'baz', '', True),
-            ('%', 'quux', '', False)
+            ("@", "foo", "", True),
+            ("+", "bar", "", True),
+            ("@", "baz", "", True),
+            ("%", "quux", "", False),
         ]
 
         self.assertEqual(m.type, "users")

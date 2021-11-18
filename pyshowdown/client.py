@@ -1,11 +1,14 @@
-from typing import Optional
-from . import connection
-from . import message
 import asyncio
-import ssl
-import aiohttp
-import json
 import configparser
+import importlib
+import os
+import sys
+import ssl
+from typing import Optional
+
+import aiohttp
+
+from pyshowdown import connection, message
 
 
 class Client:
@@ -27,14 +30,17 @@ class Client:
         self.conn = connection.Connection(host, port, path, ssl_context=ssl_context)
         self.connected = False
         self.load_config()
+        self.plugins = []
+        self.load_plugins()
 
     def load_config(self):
-        """Load config from config.ini.
-        """
+        """Load config from config.ini."""
         config = configparser.ConfigParser()
-        config.read('config.ini')
-        self.username = config['user']['username']
-        self.password = config['user']['password']
+        config.read("config.ini")
+        self.username = config["user"]["username"]
+        self.password = config["user"]["password"]
+        self.plugin_dir = config["user"].get("plugin_dir", "system")
+        self.plugin_list = config["user"].get("plugins").split(",")
 
     async def connect(self):
         """Connect to the server."""
@@ -83,8 +89,35 @@ class Client:
                 await self.handle_message(ws_message.data)
         self.connected = False
 
+    def load_plugins(self):
+        """Loads all the plugins from the directory set in config.
+
+        It should first import them, then instantiate the class
+        which is a subclass of BasePlugin.
+        """
+        print("Loading plugins...")
+
+        # always load the system plugins
+        sys.path.append(os.path.join(os.path.dirname(__file__), "plugins"))
+
+        if self.plugin_dir != "system":
+            sys.path.append(self.plugin_dir)
+
+        for plugin in self.plugin_list:
+            try:
+                plugin_module = importlib.import_module(plugin)
+                plugins = plugin_module.setup(self)
+                for plugin in plugins:
+                    self.plugins.append(plugin)
+            except Exception as e:
+                print("Error loading plugin {}: {}".format(plugin, e))
+
     async def handle_message(self, msg_str: str):
         """Handles a message from the server.
+
+        Iterates through all the loaded plugins, determines whether
+        any of them can handle the message, and if so, calls the
+        response method of the plugin.
 
         Args:
             msg_str (str): The message received.
@@ -92,33 +125,12 @@ class Client:
         print(msg_str)
         m = message.Message("", msg_str)
 
-        if m.type == "challstr":
-            await self.handle_challstr(m.challstr)
-
-    async def handle_challstr(self, challstr: str):
-        """Handle the server's challstr message to log in."""
-        print("Got challstr! Trying to log in...")
-        base_url = "https://play.pokemonshowdown.com/action.php"
-        data = {
-            "act": "login",
-            "name": self.username,
-            "pass": self.password,
-            "challstr": challstr,
-        }
-
-        async with aiohttp.ClientSession() as session:
-            async with session.post(base_url, data=data) as resp:
-                result = await resp.text()
-                self.cookies = resp.cookies
-                print('----------')
-                print(self.cookies)
-                print('----------')
-
-                # strip the leading [
-                result = result[1:]
-                result = json.loads(result)
-
-                await self.send("", "/trn {},0,{}".format(self.username, result["assertion"]))
+        for plugin in self.plugins:
+            matched = await plugin.match(m)
+            if matched:
+                resp = await plugin.response(m)
+                if resp:
+                    await self.send(m.room, resp)
 
     def __str__(self) -> str:
         """Returns a string representation of the client.
