@@ -36,9 +36,9 @@ class ChallstrHandler(BasePlugin):
         async with aiohttp.ClientSession() as session:
             async with session.post(base_url, data=data) as resp:
                 result = await resp.text()
-                self.cookies = resp.cookies
+                self.client.cookies = resp.cookies
                 print("----------")
-                print(self.cookies)
+                print(self.client.cookies)
                 print("----------")
 
                 # strip the leading [

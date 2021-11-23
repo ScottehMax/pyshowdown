@@ -35,12 +35,12 @@ class Client:
 
     def load_config(self):
         """Load config from config.ini."""
-        config = configparser.ConfigParser()
-        config.read("config.ini")
-        self.username = config["user"]["username"]
-        self.password = config["user"]["password"]
-        self.plugin_dir = config["user"].get("plugin_dir", "system")
-        self.plugin_list = config["user"].get("plugins").split(",")
+        self.config = configparser.ConfigParser()
+        self.config.read("config.ini")
+        self.username = self.config["user"]["username"]
+        self.password = self.config["user"]["password"]
+        self.plugin_dir = self.config["user"].get("plugin_dir", "system")
+        self.plugin_list = self.config["user"].get("plugins").split(",")
 
     async def connect(self):
         """Connect to the server."""
@@ -143,6 +143,22 @@ class Client:
                         await self.send_pm(m.sender, resp)
                     else:
                         await self.send(m.room, resp)
+    
+    async def join(self, room: str):
+        """Joins the given room.
+
+        Args:
+            room (str): The room to join.
+        """
+        await self.send("", f"/join {room}")
+    
+    async def leave(self, room: str):
+        """Leaves the given room.
+
+        Args:
+            room (str): The room to leave.
+        """
+        await self.send(room, "/leave")
 
     def __str__(self) -> str:
         """Returns a string representation of the client.
@@ -161,13 +177,3 @@ class Client:
             str: The representation of the client.
         """
         return self.__str__()
-
-
-async def main():
-    client = Client("sim3.psim.us", 8000, "/showdown/websocket")
-    await client.keep_connected()
-
-
-if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(main())

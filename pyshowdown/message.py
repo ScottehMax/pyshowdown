@@ -146,6 +146,12 @@ class Message:
         elif self.type == "win":
             self.winner = info[2]
 
+        elif self.type == "player":
+            self.player = info[2] if len(info) > 2 else None
+            self.username = info[3] if len(info) > 3 else None
+            self.avatar = info[4] if len(info) > 4 else None
+            self.rating = int(info[5]) if len(info) > 5 and info[5] else None
+
         else:
             # TODO: Handle other message types
             pass

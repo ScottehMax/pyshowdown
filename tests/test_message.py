@@ -232,6 +232,47 @@ class MessageTest(unittest.TestCase):
             ],
         )
 
+    def test_player(self):
+        m = message.Message(
+            "",
+            "|player|p1|Foo|60|1200"
+        )
 
-if __name__ == "__main__":
-    unittest.main()
+        self.assertEqual(m.type, "player")
+        self.assertEqual(m.player, "p1")
+        self.assertEqual(m.username, "Foo")
+        self.assertEqual(m.avatar, "60")
+        self.assertEqual(m.rating, 1200)
+
+        m = message.Message(
+            "",
+            "|player|p3|Bar|koga|"
+        )
+
+        self.assertEqual(m.type, "player")
+        self.assertEqual(m.player, "p3")
+        self.assertEqual(m.username, "Bar")
+        self.assertEqual(m.avatar, "koga")
+        self.assertIsNone(m.rating)
+
+        m = message.Message(
+            "",
+            "|player|p3|Bar|koga"
+        )
+
+        self.assertEqual(m.type, "player")
+        self.assertEqual(m.player, "p3")
+        self.assertEqual(m.username, "Bar")
+        self.assertEqual(m.avatar, "koga")
+        self.assertIsNone(m.rating)
+
+        m = message.Message(
+            "",
+            "|player|p2|"
+        )
+
+        self.assertEqual(m.type, "player")
+        self.assertEqual(m.player, "p2")
+        self.assertFalse(m.username)
+        self.assertIsNone(m.avatar)
+        self.assertIsNone(m.rating)
