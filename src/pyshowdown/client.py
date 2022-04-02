@@ -105,7 +105,8 @@ class Client:
                         room = ""
                     
                     for single_message in messages:
-                        await self.handle_message(room, single_message)
+                        if single_message:
+                            await self.handle_message(room, single_message)
         self.connected = False
 
     def load_plugins(self):
