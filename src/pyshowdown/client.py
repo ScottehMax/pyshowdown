@@ -94,8 +94,18 @@ class Client:
         """Receives data from the server forever."""
         async for ws_message in self.conn.ws:
             if ws_message.type == aiohttp.WSMsgType.TEXT:
-                print(ws_message)
-                await self.handle_message(ws_message.data)
+                message = ws_message.data
+                if message:
+                    # some messages are actually multiple messages
+                    # separated by a newline
+                    messages = message.split('\n')
+                    if messages and messages[0] and messages[0][0] == ">":
+                        room = messages.pop(0)[1:]  # not currently used
+                    else:
+                        room = ""
+                    
+                    for single_message in messages:
+                        await self.handle_message(single_message)
         self.connected = False
 
     def load_plugins(self):
