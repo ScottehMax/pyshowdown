@@ -5,19 +5,21 @@ from pyshowdown import message
 
 class MessageTest(unittest.TestCase):
     def test_init(self):
-        m = message.Message("", "|init|chat")
+        m = message.Message("techcode", "|init|chat")
 
         self.assertEqual(m.type, "init")
         self.assertEqual(m.roomtype, "chat")
+        self.assertEqual(m.room, "techcode")
 
     def test_title(self):
         m = message.Message("", "|title|Lobby")
 
         self.assertEqual(m.type, "title")
         self.assertEqual(m.title, "Lobby")
+        self.assertFalse(m.room)
 
     def test_users(self):
-        m = message.Message("", "|users|4,@foo@!,+bar@!,@baz@!,%quux")
+        m = message.Message("techcode", "|users|4,@foo@!,+bar@!,@baz@!,%quux")
         expected = [
             ("@", "foo", "", True),
             ("+", "bar", "", True),
@@ -28,6 +30,7 @@ class MessageTest(unittest.TestCase):
         self.assertEqual(m.type, "users")
         self.assertEqual(m.usercount, 4)
         self.assertEqual(m.users, expected)
+        self.assertEqual(m.room, "techcode")
 
     def test_html(self):
         m = message.Message("", "|html|<b>Hello!</b>")
@@ -234,7 +237,7 @@ class MessageTest(unittest.TestCase):
 
     def test_player(self):
         m = message.Message(
-            "",
+            "battle-gen3ou-1234567890",
             "|player|p1|Foo|60|1200"
         )
 
@@ -243,9 +246,10 @@ class MessageTest(unittest.TestCase):
         self.assertEqual(m.username, "Foo")
         self.assertEqual(m.avatar, "60")
         self.assertEqual(m.rating, 1200)
+        self.assertEqual(m.room, "battle-gen3ou-1234567890")
 
         m = message.Message(
-            "",
+            "battle-gen3ou-1234567890",
             "|player|p3|Bar|koga|"
         )
 
@@ -256,7 +260,7 @@ class MessageTest(unittest.TestCase):
         self.assertIsNone(m.rating)
 
         m = message.Message(
-            "",
+            "battle-gen3ou-1234567890",
             "|player|p3|Bar|koga"
         )
 
@@ -267,7 +271,7 @@ class MessageTest(unittest.TestCase):
         self.assertIsNone(m.rating)
 
         m = message.Message(
-            "",
+            "battle-gen3ou-1234567890",
             "|player|p2|"
         )
 
