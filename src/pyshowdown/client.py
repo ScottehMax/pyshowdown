@@ -100,12 +100,12 @@ class Client:
                     # separated by a newline
                     messages = message.split('\n')
                     if messages and messages[0] and messages[0][0] == ">":
-                        room = messages.pop(0)[1:]  # not currently used
+                        room = messages.pop(0)[1:]
                     else:
                         room = ""
                     
                     for single_message in messages:
-                        await self.handle_message(single_message)
+                        await self.handle_message(room, single_message)
         self.connected = False
 
     def load_plugins(self):
@@ -131,7 +131,7 @@ class Client:
             except Exception as e:
                 print("Error loading plugin {}: {}".format(plugin, e))
 
-    async def handle_message(self, msg_str: str):
+    async def handle_message(self, room: str, msg_str: str):
         """Handles a message from the server.
 
         Iterates through all the loaded plugins, determines whether
@@ -139,10 +139,11 @@ class Client:
         response method of the plugin.
 
         Args:
+            room (str): The room the message was sent from.
             msg_str (str): The message received.
         """
         print(msg_str)
-        m = message.Message("", msg_str)
+        m = message.Message(room, msg_str)
 
         for plugin in self.plugins:
             matched = await plugin.match(m)
