@@ -3,26 +3,26 @@ from pyshowdown.plugins.plugin import BasePlugin
 from pyshowdown.message import Message
 
 
-class InitHandler(BasePlugin):
+class TitleHandler(BasePlugin):
     async def match(self, message: Message) -> bool:
-        """Returns true if the message is an init message.
+        """Returns true if the message is a title message.
 
         Args:
             message (Message): The message to check.
 
         Returns:
-            bool: True if the message is an init message, False otherwise.
+            bool: True if the message is a title message, False otherwise.
         """
-        return message.type == "init"
+        return message.type == "title"
     
     async def response(self, message: Message) -> None:
-        """Creates the room in the Client's room dict.
+        """Sets the room title in the Client's room dict.
 
         Args:
-            message (Message): The init message.
+            message (Message): The title message.
         """
         r = room.Room(message.room)
-        self.client.rooms[r.id] = r
+        self.client.rooms[r.id].title = message.title
 
 
 def setup(client) -> list:
@@ -34,4 +34,4 @@ def setup(client) -> list:
     Returns:
         list: A list of plugins to load.
     """
-    return [InitHandler(client)]
+    return [TitleHandler(client)]

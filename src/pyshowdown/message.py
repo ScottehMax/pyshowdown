@@ -1,5 +1,7 @@
 import json
 
+from pyshowdown.user import User
+
 
 class Message:
     def __init__(self, room: str, message_str: str):
@@ -32,9 +34,8 @@ class Message:
             users = info[2].split(",")
             self.usercount = int(users.pop(0))
 
-            self.users = []
+            self.users = {}
 
-            # this should probably be refactored to use User objects
             for u in users:
                 rank = u[0]
                 u = u[1:]
@@ -49,7 +50,8 @@ class Message:
                 else:
                     away = False
 
-                self.users.append((rank, name, status, away))
+                user_obj = User(name, rank, status, away)
+                self.users[user_obj.id] = user_obj
 
         # Room messages
         elif self.type == "html":
@@ -65,11 +67,13 @@ class Message:
 
         elif self.type in ["j", "J", "join"]:
             self.type = "join"
-            self.user = info[2]
+            self.rank = info[2][0]
+            self.user = info[2][1:]
 
         elif self.type in ["l", "L", "leave"]:
             self.type = "leave"
-            self.user = info[2]
+            self.rank = info[2][0]
+            self.user = info[2][1:]
 
         elif self.type in ["n", "N", "name"]:
             self.type = "name"
@@ -200,6 +204,9 @@ def parse_formats(format_str: str) -> dict:
             results[section_name] = {}
             in_section = False
         elif item[0] == ",":
+            if item[1:] == 'LL':
+                # this is being run locally, ignore it
+                continue
             # this is a section
             in_section = True
             section_number = int(item[1:])

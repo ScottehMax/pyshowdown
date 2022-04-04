@@ -32,6 +32,7 @@ class Client:
         self.load_config()
         self.plugins = []
         self.load_plugins()
+        self.rooms = {}
 
     def load_config(self):
         """Load config from config.ini."""

@@ -56,13 +56,15 @@ class MessageTest(unittest.TestCase):
         m = message.Message("", "|j|@foo")
 
         self.assertEqual(m.type, "join")
-        self.assertEqual(m.user, "@foo")
+        self.assertEqual(m.rank, "@")
+        self.assertEqual(m.user, "foo")
 
     def test_leave(self):
         m = message.Message("", "|l|@foo")
 
         self.assertEqual(m.type, "leave")
-        self.assertEqual(m.user, "@foo")
+        self.assertEqual(m.rank, "@")
+        self.assertEqual(m.user, "foo")
 
     def test_name(self):
         m = message.Message("", "|name|@bar|foo")

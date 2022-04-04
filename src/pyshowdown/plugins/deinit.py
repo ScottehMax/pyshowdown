@@ -22,3 +22,15 @@ class DeinitHandler(BasePlugin):
             message (Message): The deinit message.
         """
         del self.client.rooms[message.room]
+
+
+def setup(client) -> list:
+    """Return a list of plugins to load.
+
+    Args:
+        client (Client): The client to use.
+
+    Returns:
+        list: A list of plugins to load.
+    """
+    return [DeinitHandler(client)]
