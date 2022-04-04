@@ -25,7 +25,7 @@ class Message:
             self.roomtype = info[2]
 
         elif self.type == "deinit":
-            self.roomtype = info[2]
+            pass
 
         elif self.type == "title":
             self.title = info[2]
