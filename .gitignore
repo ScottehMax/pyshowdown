@@ -1,6 +1,7 @@
 __pycache__/
 *.py[cod]
 venv/
+build/
 
 .vscode/
 .python-version

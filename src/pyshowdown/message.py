@@ -22,6 +22,9 @@ class Message:
         if self.type == "init":
             self.roomtype = info[2]
 
+        elif self.type == "deinit":
+            self.roomtype = info[2]
+
         elif self.type == "title":
             self.title = info[2]
 
@@ -138,6 +141,7 @@ class Message:
                 # override the relevant room, since queryresponse messages
                 # are sent as global messages
                 self.room = self.json_data["id"]
+                self.password = self.json_data.get("password", "")
 
         elif self.type == "raw":
             self.data = info[2]

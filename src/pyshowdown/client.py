@@ -71,7 +71,9 @@ class Client:
         Args:
             message (str): The message to send.
         """
-        await self.conn.send(f"{room}|{message}")
+        m = f"{room}|{message}"
+        print('>> ' + m)
+        await self.conn.send(m)
     
     async def send_pm(self, user: str, message: str):
         """Sends a private message to the user.
@@ -143,7 +145,7 @@ class Client:
             room (str): The room the message was sent from.
             msg_str (str): The message received.
         """
-        print(msg_str)
+        print('<< ' + msg_str)
         m = message.Message(room, msg_str)
 
         for plugin in self.plugins:
