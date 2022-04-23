@@ -11,7 +11,7 @@ class RoomTest(unittest.TestCase):
         self.assertEqual(r.is_battle, False)
         self.assertRaises(AttributeError, lambda: r.is_private_battle)
         self.assertRaises(AttributeError, lambda: r.password)
-    
+
     def test_init_battle_room(self):
         r = room.Room("battle-test-12345")
         self.assertEqual(r.id, "battle-test-12345")

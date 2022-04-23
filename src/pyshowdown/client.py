@@ -5,10 +5,13 @@ import os
 import sys
 import ssl
 from typing import Optional
+from http.cookies import SimpleCookie
 
 import aiohttp
 
 from pyshowdown import connection, message
+from pyshowdown.room import Room
+from pyshowdown.plugins.plugin import BasePlugin
 
 
 class Client:
@@ -29,12 +32,13 @@ class Client:
         """
         self.conn = connection.Connection(host, port, path, ssl_context=ssl_context)
         self.connected = False
+        self.cookies: Optional[SimpleCookie[str]] = None
         self.load_config()
-        self.plugins = []
+        self.plugins: list[BasePlugin] = []
         self.load_plugins()
-        self.rooms = {}
+        self.rooms: dict[str, Room] = {}
 
-    def load_config(self):
+    def load_config(self) -> None:
         """Load config from config.ini."""
         self.config = configparser.ConfigParser()
         self.config.read("config.ini")
@@ -43,11 +47,11 @@ class Client:
         self.plugin_dir = self.config["user"].get("plugin_dir", "system")
         self.plugin_list = self.config["user"].get("plugins").split(",")
 
-    async def connect(self):
+    async def connect(self) -> None:
         """Connect to the server."""
         await self.conn.connect()
 
-    async def keep_connected(self):
+    async def keep_connected(self) -> None:
         """Keeps the client connected to the server."""
         self.connected = False
         timeout = 1
@@ -62,11 +66,11 @@ class Client:
                 print(e)
                 timeout += 1
 
-    async def close(self):
+    async def close(self) -> None:
         """Close the connection."""
         await self.conn.close()
 
-    async def send(self, room: str, message: str):
+    async def send(self, room: str, message: str) -> None:
         """Sends message to the server.
 
         Args:
@@ -75,8 +79,8 @@ class Client:
         m = f"{room}|{message}"
         print('>> ' + m)
         await self.conn.send(m)
-    
-    async def send_pm(self, user: str, message: str):
+
+    async def send_pm(self, user: str, message: str) -> None:
         """Sends a private message to the user.
 
         Args:
@@ -85,16 +89,22 @@ class Client:
         """
         await self.send("", f"/w {user}, {message}")
 
-    async def receive(self) -> str:
+    async def receive(self) -> aiohttp.WSMessage:
         """Receives data from the server.
 
         Returns:
-            str: The data received.
+            aiohttp.WSMessage: The data received.
         """
         return await self.conn.receive()
 
-    async def receive_forever(self):
-        """Receives data from the server forever."""
+    async def receive_forever(self) -> None:
+        """Receives data from the server forever.
+
+        Raises:
+            ConnectionError: If no connection is established.
+        """
+        if self.conn.ws is None:
+            raise ConnectionError("Not connected to server.")
         async for ws_message in self.conn.ws:
             if ws_message.type == aiohttp.WSMsgType.TEXT:
                 message = ws_message.data
@@ -106,13 +116,13 @@ class Client:
                         room = messages.pop(0)[1:]
                     else:
                         room = ""
-                    
+
                     for single_message in messages:
                         if single_message:
                             await self.handle_message(room, single_message)
         self.connected = False
 
-    def load_plugins(self):
+    def load_plugins(self) -> None:
         """Loads all the plugins from the directory set in config.
 
         It should first import them, then instantiate the class
@@ -126,16 +136,16 @@ class Client:
         if self.plugin_dir != "system":
             sys.path.append(self.plugin_dir)
 
-        for plugin in self.plugin_list:
+        for plugin_name in self.plugin_list:
             try:
-                plugin_module = importlib.import_module(plugin)
+                plugin_module = importlib.import_module(plugin_name)
                 plugins = plugin_module.setup(self)
                 for plugin in plugins:
                     self.plugins.append(plugin)
             except Exception as e:
                 print("Error loading plugin {}: {}".format(plugin, e))
 
-    async def handle_message(self, room: str, msg_str: str):
+    async def handle_message(self, room: str, msg_str: str) -> None:
         """Handles a message from the server.
 
         Iterates through all the loaded plugins, determines whether
@@ -158,16 +168,16 @@ class Client:
                         await self.send_pm(m.sender, resp)
                     else:
                         await self.send(m.room, resp)
-    
-    async def join(self, room: str):
+
+    async def join(self, room: str) -> None:
         """Joins the given room.
 
         Args:
             room (str): The room to join.
         """
         await self.send("", f"/join {room}")
-    
-    async def leave(self, room: str):
+
+    async def leave(self, room: str) -> None:
         """Leaves the given room.
 
         Args:

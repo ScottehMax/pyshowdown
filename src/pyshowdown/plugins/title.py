@@ -1,4 +1,5 @@
 from pyshowdown import room
+from pyshowdown.client import Client
 from pyshowdown.plugins.plugin import BasePlugin
 from pyshowdown.message import Message
 
@@ -14,7 +15,7 @@ class TitleHandler(BasePlugin):
             bool: True if the message is a title message, False otherwise.
         """
         return message.type == "title"
-    
+
     async def response(self, message: Message) -> None:
         """Sets the room title in the Client's room dict.
 
@@ -25,13 +26,13 @@ class TitleHandler(BasePlugin):
         self.client.rooms[r.id].title = message.title
 
 
-def setup(client) -> list:
+def setup(client: Client) -> list[BasePlugin]:
     """Return a list of plugins to load.
 
     Args:
         client (Client): The client to use.
 
     Returns:
-        list: A list of plugins to load.
+        list[BasePlugin]: A list of plugins to load.
     """
     return [TitleHandler(client)]

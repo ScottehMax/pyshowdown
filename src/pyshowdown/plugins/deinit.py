@@ -1,4 +1,5 @@
 from pyshowdown import room
+from pyshowdown.client import Client
 from pyshowdown.plugins.plugin import BasePlugin
 from pyshowdown.message import Message
 
@@ -14,7 +15,7 @@ class DeinitHandler(BasePlugin):
             bool: True if the message is a deinit message, False otherwise.
         """
         return message.type == "deinit"
-    
+
     async def response(self, message: Message) -> None:
         """Removes the room from the Client's room dict.
 
@@ -24,13 +25,13 @@ class DeinitHandler(BasePlugin):
         del self.client.rooms[message.room]
 
 
-def setup(client) -> list:
+def setup(client: Client) -> list[BasePlugin]:
     """Return a list of plugins to load.
 
     Args:
         client (Client): The client to use.
 
     Returns:
-        list: A list of plugins to load.
+        list[BasePlugin]: A list of plugins to load.
     """
     return [DeinitHandler(client)]

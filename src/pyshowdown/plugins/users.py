@@ -1,4 +1,5 @@
 from pyshowdown import room
+from pyshowdown.client import Client
 from pyshowdown.plugins.plugin import BasePlugin
 from pyshowdown.message import Message
 from pyshowdown.user import User
@@ -16,7 +17,7 @@ class UsersHandler(BasePlugin):
             bool: True if the message is a users message, False otherwise.
         """
         return message.type == "users"
-    
+
     async def response(self, message: Message) -> None:
         """Sets the room users in the Client's room dict.
 
@@ -38,7 +39,7 @@ class JoinHandler(BasePlugin):
             bool: True if the message is a join message, False otherwise.
         """
         return message.type in ["join", "j"]
-    
+
     async def response(self, message: Message) -> None:
         """Adds the user to the room's users.
 
@@ -61,7 +62,7 @@ class LeaveHandler(BasePlugin):
             bool: True if the message is a leave message, False otherwise.
         """
         return message.type in ["leave", "l"]
-    
+
     async def response(self, message: Message) -> None:
         """Removes the user from the room's users.
 
@@ -72,13 +73,13 @@ class LeaveHandler(BasePlugin):
         del self.client.rooms[r.id].users[to_id(message.user)]
 
 
-def setup(client) -> list:
+def setup(client: Client) -> list[BasePlugin]:
     """Return a list of plugins to load.
 
     Args:
         client (Client): The client to use.
 
     Returns:
-        list: A list of plugins to load.
+        list[BasePlugin]: A list of plugins to load.
     """
     return [UsersHandler(client), JoinHandler(client), LeaveHandler(client)]

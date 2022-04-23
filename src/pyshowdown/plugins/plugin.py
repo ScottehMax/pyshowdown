@@ -1,4 +1,7 @@
+from typing import Optional
+
 from pyshowdown.client import Client
+from pyshowdown.message import Message
 
 
 class BasePlugin:
@@ -10,7 +13,7 @@ class BasePlugin:
         """
         self.client = client
 
-    async def match(self, message):
+    async def match(self, message: Message) -> bool:
         """Returns True if the message is a match for the plugin.
 
         Args:
@@ -18,10 +21,13 @@ class BasePlugin:
 
         Raises:
             NotImplementedError: Always, since this is a base class.
+
+        Returns:
+            bool: True if the message is a match, False otherwise.
         """
         raise NotImplementedError()
 
-    async def response(self, message):
+    async def response(self, message: Message) -> Optional[str]:
         """Returns the response for the message.
 
         Args:
@@ -29,5 +35,8 @@ class BasePlugin:
 
         Raises:
             NotImplementedError: Always, since this is a base class.
+
+        Returns:
+            Optional[str]: The response for the message.
         """
         raise NotImplementedError()

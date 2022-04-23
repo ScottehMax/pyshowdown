@@ -1,6 +1,7 @@
 import json
 
 import aiohttp
+from pyshowdown.client import Client
 
 from pyshowdown.plugins.plugin import BasePlugin
 from pyshowdown.message import Message
@@ -35,28 +36,25 @@ class ChallstrHandler(BasePlugin):
 
         async with aiohttp.ClientSession() as session:
             async with session.post(base_url, data=data) as resp:
-                result = await resp.text()
+                result_str = await resp.text()
                 self.client.cookies = resp.cookies
-                print("----------")
-                print(self.client.cookies)
-                print("----------")
 
                 # strip the leading [
-                result = result[1:]
-                result = json.loads(result)
+                result_str = result_str[1:]
+                result = json.loads(result_str)
 
                 await self.client.send(
                     "", "/trn {},0,{}".format(self.client.username, result["assertion"])
                 )
 
 
-def setup(client) -> list:
+def setup(client: Client) -> list[BasePlugin]:
     """Creates an instance of the ChallstrHandler plugin and returns it.
 
     Args:
         client (Client): A reference to the client.
 
     Returns:
-        list: A list containing the ChallstrHandler plugin.
+        list[BasePlugin]: A list containing the ChallstrHandler plugin.
     """
     return [ChallstrHandler(client)]

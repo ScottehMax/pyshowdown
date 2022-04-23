@@ -1,4 +1,5 @@
 import json
+from typing import Optional
 
 from pyshowdown.user import User
 
@@ -13,9 +14,14 @@ class Message:
         """
         self.room = room
         self.message_str = message_str
+
+        # optional attributes
+        self.username: Optional[str] = None
+        self.avatar: Optional[str] = None
+
         self.parse_message()
 
-    def parse_message(self):
+    def parse_message(self) -> None:
         """Parse the message and store the attributes."""
         info = self.message_str.split("|")
         self.type = info[1]
@@ -181,17 +187,20 @@ class Message:
         return self.__str__()
 
 
-def parse_formats(format_str: str) -> dict:
+section = dict[str, list[str]]
+formats = dict[str, section]
+
+def parse_formats(format_str: str) -> formats:
     """Parse a format message and return a list of formats.
 
     Args:
         format_str (str): The format message.
 
     Returns:
-        dict: A dictionary of sections, formats, and some additional
+        formats: A dictionary of sections, formats, and some additional
             info about the formats.
     """
-    results = {}
+    results: formats = {}
     split_str = format_str.split("|")
     in_section = False
     section_name = ""
@@ -209,11 +218,11 @@ def parse_formats(format_str: str) -> dict:
                 continue
             # this is a section
             in_section = True
-            section_number = int(item[1:])
+            section_number = int(item[1:])  # unused here for now
         else:
             # this is a format
-            name, rule_num = item.split(",")
-            rule_num = int(rule_num, 16)
+            name, rule_num_str = item.split(",")
+            rule_num = int(rule_num_str, 16)
             rules = []
 
             if rule_num & 1:

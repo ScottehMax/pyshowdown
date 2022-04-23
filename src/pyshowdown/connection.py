@@ -25,10 +25,10 @@ class Connection:
         self.path = path
         self.protocol = "wss" if port == 443 else "ws"
         self.url = "{}://{}:{}{}".format(self.protocol, self.host, self.port, self.path)
-        self.ws = None
+        self.ws: Optional[aiohttp.ClientWebSocketResponse] = None
         self.ssl_context = ssl_context
 
-    async def connect(self):
+    async def connect(self) -> None:
         """Connect to the server."""
         self.session = aiohttp.ClientSession()
         print("connecting...")
@@ -37,27 +37,43 @@ class Connection:
         else:
             self.ws = await self.session.ws_connect(self.url)
 
-    async def send(self, message: str):
+    async def send(self, message: str) -> None:
         """Send a message to the server.
 
         Args:
             message (str): The message to send.
+
+        Raises:
+            ConnectionError: If no connection is established.
         """
+        if self.ws is None:
+            raise ConnectionError("Not connected to server.")
         await self.ws.send_str(message)
 
-    async def receive(self):
+    async def receive(self) -> aiohttp.WSMessage:
         """Receive a message from the server.
 
         Returns:
-            str: The message received.
+            aiohttp.WSMessage: The message received.
+
+        Raises:
+            ConnectionError: If no connection is established.
         """
+        if self.ws is None:
+            raise ConnectionError("Not connected to server.")
         return await self.ws.receive()
 
-    async def close(self):
-        """Close the connection to the server."""
+    async def close(self) -> None:
+        """Close the connection to the server.
+
+        Raises:
+            ConnectionError: If no connection is established.
+        """
+        if self.ws is None:
+            raise ConnectionError("Not connected to server.")
         await self.ws.close()
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of the connection.
 
         Returns:
@@ -65,7 +81,7 @@ class Connection:
         """
         return "Connection: {}".format(self.url)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return a representation of the connection.
 
         Returns:

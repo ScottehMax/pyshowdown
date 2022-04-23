@@ -1,6 +1,7 @@
 import unittest
 
 from pyshowdown import message
+from pyshowdown.user import User
 
 
 class MessageTest(unittest.TestCase):
@@ -20,16 +21,16 @@ class MessageTest(unittest.TestCase):
 
     def test_users(self):
         m = message.Message("techcode", "|users|4,@foo@!,+bar@!,@baz@!,%quux")
-        expected = [
-            ("@", "foo", "", True),
-            ("+", "bar", "", True),
-            ("@", "baz", "", True),
-            ("%", "quux", "", False),
-        ]
+        expected = {
+            "foo": User(rank="@", name="foo", status="", away=True),
+            "bar": User(rank="+", name="bar", status="", away=True),
+            "baz": User(rank="@", name="baz", status="", away=True),
+            "quux": User(rank="%", name="quux", status="", away=False),
+        }
 
         self.assertEqual(m.type, "users")
         self.assertEqual(m.usercount, 4)
-        self.assertEqual(m.users, expected)
+        self.assertDictEqual(m.users, expected)
         self.assertEqual(m.room, "techcode")
 
     def test_html(self):
