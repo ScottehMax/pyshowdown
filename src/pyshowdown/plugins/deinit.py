@@ -1,4 +1,5 @@
-from pyshowdown import room
+from typing import List
+
 from pyshowdown.client import Client
 from pyshowdown.plugins.plugin import BasePlugin
 from pyshowdown.message import Message
@@ -25,13 +26,13 @@ class DeinitHandler(BasePlugin):
         del self.client.rooms[message.room]
 
 
-def setup(client: Client) -> list[BasePlugin]:
+def setup(client: Client) -> List[BasePlugin]:
     """Return a list of plugins to load.
 
     Args:
         client (Client): The client to use.
 
     Returns:
-        list[BasePlugin]: A list of plugins to load.
+        List[BasePlugin]: A list of plugins to load.
     """
     return [DeinitHandler(client)]

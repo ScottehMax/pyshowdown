@@ -1,5 +1,6 @@
 from pyshowdown.utils import to_id
 
+
 class User:
     def __init__(self, name: str, rank: str, status: str, away: bool):
         """Represents a user.
@@ -22,7 +23,9 @@ class User:
     def __repr__(self) -> str:
         return self.__str__()
 
-    def __eq__(self, other: "User") -> bool:
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, User):
+            return NotImplemented
         return (
             self.id == other.id
             and self.name == other.name

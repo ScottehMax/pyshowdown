@@ -2,16 +2,19 @@ import asyncio
 import configparser
 import importlib
 import os
-import sys
 import ssl
-from typing import Optional
+import sys
 from http.cookies import SimpleCookie
+from typing import Optional, List, Dict, TYPE_CHECKING
 
 import aiohttp
 
 from pyshowdown import connection, message
-from pyshowdown.room import Room
-from pyshowdown.plugins.plugin import BasePlugin
+
+
+if TYPE_CHECKING:
+    from pyshowdown.plugins.plugin import BasePlugin
+    from pyshowdown.room import Room
 
 
 class Client:
@@ -34,9 +37,9 @@ class Client:
         self.connected = False
         self.cookies: Optional[SimpleCookie[str]] = None
         self.load_config()
-        self.plugins: list[BasePlugin] = []
+        self.plugins: List["BasePlugin"] = []
         self.load_plugins()
-        self.rooms: dict[str, Room] = {}
+        self.rooms: Dict[str, "Room"] = {}
 
     def load_config(self) -> None:
         """Load config from config.ini."""
@@ -77,7 +80,7 @@ class Client:
             message (str): The message to send.
         """
         m = f"{room}|{message}"
-        print('>> ' + m)
+        print(">> " + m)
         await self.conn.send(m)
 
     async def send_pm(self, user: str, message: str) -> None:
@@ -107,11 +110,11 @@ class Client:
             raise ConnectionError("Not connected to server.")
         async for ws_message in self.conn.ws:
             if ws_message.type == aiohttp.WSMsgType.TEXT:
-                message = ws_message.data
+                message: str = ws_message.data
                 if message:
                     # some messages are actually multiple messages
                     # separated by a newline
-                    messages = message.split('\n')
+                    messages = message.split("\n")
                     if messages and messages[0] and messages[0][0] == ">":
                         room = messages.pop(0)[1:]
                     else:
@@ -143,7 +146,7 @@ class Client:
                 for plugin in plugins:
                     self.plugins.append(plugin)
             except Exception as e:
-                print("Error loading plugin {}: {}".format(plugin, e))
+                print("Error loading plugin {}: {}".format(plugin_name, e))
 
     async def handle_message(self, room: str, msg_str: str) -> None:
         """Handles a message from the server.
@@ -156,7 +159,7 @@ class Client:
             room (str): The room the message was sent from.
             msg_str (str): The message received.
         """
-        print('<< ' + msg_str)
+        print("<< " + msg_str)
         m = message.Message(room, msg_str)
 
         for plugin in self.plugins:

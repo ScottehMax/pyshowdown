@@ -1,10 +1,10 @@
 import json
+from typing import List
 
 import aiohttp
 from pyshowdown.client import Client
-
-from pyshowdown.plugins.plugin import BasePlugin
 from pyshowdown.message import Message
+from pyshowdown.plugins.plugin import BasePlugin
 
 
 class ChallstrHandler(BasePlugin):
@@ -48,13 +48,13 @@ class ChallstrHandler(BasePlugin):
                 )
 
 
-def setup(client: Client) -> list[BasePlugin]:
+def setup(client: Client) -> List[BasePlugin]:
     """Creates an instance of the ChallstrHandler plugin and returns it.
 
     Args:
         client (Client): A reference to the client.
 
     Returns:
-        list[BasePlugin]: A list containing the ChallstrHandler plugin.
+        List[BasePlugin]: A list containing the ChallstrHandler plugin.
     """
     return [ChallstrHandler(client)]

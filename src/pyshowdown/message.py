@@ -1,5 +1,5 @@
 import json
-from typing import Optional
+from typing import Optional, List, Dict
 
 from pyshowdown.user import User
 
@@ -18,6 +18,7 @@ class Message:
         # optional attributes
         self.username: Optional[str] = None
         self.avatar: Optional[str] = None
+        self.users: Optional[Dict[str, User]] = None
 
         self.parse_message()
 
@@ -187,8 +188,9 @@ class Message:
         return self.__str__()
 
 
-section = dict[str, list[str]]
-formats = dict[str, section]
+section = Dict[str, List[str]]
+formats = Dict[str, section]
+
 
 def parse_formats(format_str: str) -> formats:
     """Parse a format message and return a list of formats.
@@ -213,7 +215,7 @@ def parse_formats(format_str: str) -> formats:
             results[section_name] = {}
             in_section = False
         elif item[0] == ",":
-            if item[1:] == 'LL':
+            if item[1:] == "LL":
                 # this is being run locally, ignore it
                 continue
             # this is a section

@@ -1,3 +1,5 @@
+from typing import List
+
 from pyshowdown import room
 from pyshowdown.client import Client
 from pyshowdown.plugins.plugin import BasePlugin
@@ -25,7 +27,8 @@ class UsersHandler(BasePlugin):
             message (Message): The users message.
         """
         r = room.Room(message.room)
-        self.client.rooms[r.id].users = message.users
+        if message.users is not None:
+            self.client.rooms[r.id].users = message.users
 
 
 class JoinHandler(BasePlugin):
@@ -73,13 +76,13 @@ class LeaveHandler(BasePlugin):
         del self.client.rooms[r.id].users[to_id(message.user)]
 
 
-def setup(client: Client) -> list[BasePlugin]:
+def setup(client: Client) -> List[BasePlugin]:
     """Return a list of plugins to load.
 
     Args:
         client (Client): The client to use.
 
     Returns:
-        list[BasePlugin]: A list of plugins to load.
+        List[BasePlugin]: A list of plugins to load.
     """
     return [UsersHandler(client), JoinHandler(client), LeaveHandler(client)]

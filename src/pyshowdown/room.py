@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Dict
 
 from pyshowdown.user import User
 
@@ -12,7 +12,7 @@ class Room:
         """
         self.id = id
         self.title: Optional[str] = None
-        self.users: dict[str, User] = {}
+        self.users: Dict[str, User] = {}
         self.is_battle = self.id.startswith("battle-")
         if self.is_battle:
             self.is_private_battle = self.id.count("-") == 3

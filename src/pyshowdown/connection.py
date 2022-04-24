@@ -1,7 +1,7 @@
-import aiohttp
-import asyncio
 import ssl
 from typing import Optional
+
+import aiohttp
 
 
 class Connection:

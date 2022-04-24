@@ -239,10 +239,7 @@ class MessageTest(unittest.TestCase):
         )
 
     def test_player(self):
-        m = message.Message(
-            "battle-gen3ou-1234567890",
-            "|player|p1|Foo|60|1200"
-        )
+        m = message.Message("battle-gen3ou-1234567890", "|player|p1|Foo|60|1200")
 
         self.assertEqual(m.type, "player")
         self.assertEqual(m.player, "p1")
@@ -251,10 +248,7 @@ class MessageTest(unittest.TestCase):
         self.assertEqual(m.rating, 1200)
         self.assertEqual(m.room, "battle-gen3ou-1234567890")
 
-        m = message.Message(
-            "battle-gen3ou-1234567890",
-            "|player|p3|Bar|koga|"
-        )
+        m = message.Message("battle-gen3ou-1234567890", "|player|p3|Bar|koga|")
 
         self.assertEqual(m.type, "player")
         self.assertEqual(m.player, "p3")
@@ -262,10 +256,7 @@ class MessageTest(unittest.TestCase):
         self.assertEqual(m.avatar, "koga")
         self.assertIsNone(m.rating)
 
-        m = message.Message(
-            "battle-gen3ou-1234567890",
-            "|player|p3|Bar|koga"
-        )
+        m = message.Message("battle-gen3ou-1234567890", "|player|p3|Bar|koga")
 
         self.assertEqual(m.type, "player")
         self.assertEqual(m.player, "p3")
@@ -273,10 +264,7 @@ class MessageTest(unittest.TestCase):
         self.assertEqual(m.avatar, "koga")
         self.assertIsNone(m.rating)
 
-        m = message.Message(
-            "battle-gen3ou-1234567890",
-            "|player|p2|"
-        )
+        m = message.Message("battle-gen3ou-1234567890", "|player|p2|")
 
         self.assertEqual(m.type, "player")
         self.assertEqual(m.player, "p2")
