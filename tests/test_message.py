@@ -271,3 +271,10 @@ class MessageTest(unittest.TestCase):
         self.assertFalse(m.username)
         self.assertIsNone(m.avatar)
         self.assertIsNone(m.rating)
+
+    def test_noproto(self):
+        m = message.Message("battle-gen3ou-1234567890", "No Pokémon, item, move, ability or nature named 'healee' was found. Showing the data of 'Healer' instead.")
+
+        self.assertIsNone(m.type)
+        self.assertEqual(m.room, "battle-gen3ou-1234567890")
+        self.assertEqual(m.message_str, "No Pokémon, item, move, ability or nature named 'healee' was found. Showing the data of 'Healer' instead.")

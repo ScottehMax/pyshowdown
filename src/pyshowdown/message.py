@@ -25,7 +25,10 @@ class Message:
     def parse_message(self) -> None:
         """Parse the message and store the attributes."""
         info = self.message_str.split("|")
-        self.type = info[1]
+        if len(info) > 1:
+            self.type = info[1]
+        else:
+            self.type = None
 
         # Room initialization
         if self.type == "init":
