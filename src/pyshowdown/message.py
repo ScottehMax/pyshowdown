@@ -19,6 +19,7 @@ class Message:
         self.username: Optional[str] = None
         self.avatar: Optional[str] = None
         self.users: Optional[Dict[str, User]] = None
+        self.type: Optional[str] = None
 
         self.parse_message()
 

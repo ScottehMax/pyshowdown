@@ -20,20 +20,22 @@ if TYPE_CHECKING:
 class Client:
     def __init__(
         self,
-        host: str,
-        port: int,
-        path: str,
+        username: str,
+        password: str,
+        url: str,
         ssl_context: Optional[ssl.SSLContext] = None,
     ):
         """Client class constructor.
 
         Args:
-            host (str): Hostname or IP address of the server.
-            port (int): The port number of the server.
-            path (str): The path to the server.
+            username (str): The username to use.
+            password (str): The password to use.
+            url (str): The url to connect to.
             ssl_context (ssl.SSLContext, optional): The SSL context. Defaults to None.
         """
-        self.conn = connection.Connection(host, port, path, ssl_context=ssl_context)
+        self.conn = connection.Connection(url, ssl_context=ssl_context)
+        self.username = username
+        self.password = password
         self.connected = False
         self.cookies: Optional[SimpleCookie[str]] = None
         self.load_config()
@@ -45,8 +47,6 @@ class Client:
         """Load config from config.ini."""
         self.config = configparser.ConfigParser()
         self.config.read("config.ini")
-        self.username = self.config["user"]["username"]
-        self.password = self.config["user"]["password"]
         self.plugin_dir = self.config["user"].get("plugin_dir", "system")
         self.plugin_list = self.config["user"].get("plugins").split(",")
 
@@ -194,8 +194,8 @@ class Client:
         Returns:
             str: The string representation of the client.
         """
-        return "Client({}, {}, {})".format(
-            self.conn.host, self.conn.port, self.conn.path
+        return "Client({})".format(
+            self.conn.url
         )
 
     def __repr__(self) -> str:

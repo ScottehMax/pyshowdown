@@ -7,24 +7,16 @@ import aiohttp
 class Connection:
     def __init__(
         self,
-        host: str,
-        port: int,
-        path: str,
+        url: str,
         ssl_context: Optional[ssl.SSLContext] = None,
     ):
         """Create a connection to the server.
 
         Args:
-            host (str): The hostname of the server.
-            port (int): The port of the server.
-            path (str): The path to the server.
+            url (str): The url to connect to.
             ssl_context (ssl.SSLContext, optional): The SSL context. Defaults to None.
         """
-        self.host = host
-        self.port = port
-        self.path = path
-        self.protocol = "wss" if port == 443 else "ws"
-        self.url = "{}://{}:{}{}".format(self.protocol, self.host, self.port, self.path)
+        self.url = url
         self.ws: Optional[aiohttp.ClientWebSocketResponse] = None
         self.ssl_context = ssl_context
 
