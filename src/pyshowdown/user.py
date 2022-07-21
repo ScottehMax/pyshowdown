@@ -1,6 +1,9 @@
 from pyshowdown.utils import to_id
 
 
+RANKS = set(["&", "#", "★", "@", "%", "§", "*", "☆", "+", "^", " "])
+
+
 class User:
     def __init__(self, name: str, rank: str, status: str, away: bool):
         """Represents a user.

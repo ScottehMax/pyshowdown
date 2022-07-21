@@ -1,7 +1,7 @@
 import json
 from typing import Optional, List, Dict
 
-from pyshowdown.user import User
+from pyshowdown.user import User, RANKS
 
 
 class Message:
@@ -79,12 +79,22 @@ class Message:
         elif self.type in ["j", "J", "join"]:
             self.type = "join"
             self.rank = info[2][0]
-            self.user = info[2][1:]
+            if self.rank not in RANKS:
+                # apparently sometimes the space isn't there...
+                self.rank = " "
+                self.user = info[2]
+            else:
+                self.user = info[2][1:]
 
         elif self.type in ["l", "L", "leave"]:
             self.type = "leave"
             self.rank = info[2][0]
-            self.user = info[2][1:]
+            if self.rank not in RANKS:
+                # apparently sometimes the space isn't there...
+                self.rank = " "
+                self.user = info[2]
+            else:
+                self.user = info[2][1:]
 
         elif self.type in ["n", "N", "name"]:
             self.type = "name"
