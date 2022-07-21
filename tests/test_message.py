@@ -66,6 +66,20 @@ class MessageTest(unittest.TestCase):
         self.assertEqual(m.type, "leave")
         self.assertEqual(m.rank, "@")
         self.assertEqual(m.user, "foo")
+    
+    def test_rankless_without_space_join(self):
+        m = message.Message("", "|j|asdfghjkl")
+
+        self.assertEqual(m.type, "join")
+        self.assertEqual(m.rank, " ")
+        self.assertEqual(m.user, "asdfghjkl")
+    
+    def test_rankless_without_space_leave(self):
+        m = message.Message("", "|l|asdfghjkl")
+
+        self.assertEqual(m.type, "leave")
+        self.assertEqual(m.rank, " ")
+        self.assertEqual(m.user, "asdfghjkl")
 
     def test_name(self):
         m = message.Message("", "|name|@bar|foo")
