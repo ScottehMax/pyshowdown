@@ -108,22 +108,26 @@ class Client:
         """
         if self.conn.ws is None:
             raise ConnectionError("Not connected to server.")
-        async for ws_message in self.conn.ws:
-            if ws_message.type == aiohttp.WSMsgType.TEXT:
-                message: str = ws_message.data
-                if message:
-                    # some messages are actually multiple messages
-                    # separated by a newline
-                    messages = message.split("\n")
-                    if messages and messages[0] and messages[0][0] == ">":
-                        room = messages.pop(0)[1:]
-                    else:
-                        room = ""
+        try:
+            async for ws_message in self.conn.ws:
+                if ws_message.type == aiohttp.WSMsgType.TEXT:
+                    message: str = ws_message.data
+                    if message:
+                        # some messages are actually multiple messages
+                        # separated by a newline
+                        messages = message.split("\n")
+                        if messages and messages[0] and messages[0][0] == ">":
+                            room = messages.pop(0)[1:]
+                        else:
+                            room = ""
 
-                    for single_message in messages:
-                        if single_message:
-                            await self.handle_message(room, single_message)
-        self.connected = False
+                        for single_message in messages:
+                            if single_message:
+                                await self.handle_message(room, single_message)
+        finally:
+            print("Connection closed.")
+            await self.conn.close()
+            self.connected = False
 
     def load_plugins(self) -> None:
         """Loads all the plugins from the directory set in config.
