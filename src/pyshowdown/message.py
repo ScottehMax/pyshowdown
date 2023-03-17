@@ -16,7 +16,7 @@ class Message:
         self.message_str = message_str
 
         # optional attributes
-        self.username: Optional[str] = None
+        self.user: Optional[str] = None
         self.avatar: Optional[str] = None
         self.users: Optional[Dict[str, User]] = None
         self.type: Optional[str] = None
@@ -127,7 +127,7 @@ class Message:
             self.message = info[2]
 
         elif self.type == "pm":
-            self.sender = info[2]
+            self.user = info[2]
             self.receiver = info[3]
             self.message = info[4]
 
@@ -135,7 +135,7 @@ class Message:
             self.usercount = int(info[2])
 
         elif self.type == "nametaken":
-            self.username = info[2]
+            self.user = info[2]
             self.message = info[3]
 
         elif self.type == "challstr":
@@ -177,7 +177,7 @@ class Message:
 
         elif self.type == "player":
             self.player = info[2] if len(info) > 2 else None
-            self.username = info[3] if len(info) > 3 else None
+            self.user = info[3] if len(info) > 3 else None
             self.avatar = info[4] if len(info) > 4 else None
             self.rating = int(info[5]) if len(info) > 5 and info[5] else None
 
