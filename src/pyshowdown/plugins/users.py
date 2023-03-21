@@ -73,7 +73,35 @@ class LeaveHandler(BasePlugin):
             message (Message): The leave message.
         """
         r = room.Room(message.room)
-        del self.client.rooms[r.id].users[to_id(message.user)]
+        if to_id(message.user) in self.client.rooms[r.id].users:
+            del self.client.rooms[r.id].users[to_id(message.user)]
+
+
+class RenameHandler(BasePlugin):
+    async def match(self, message: Message) -> bool:
+        """Returns true if the message is a rename message.
+
+        Args:
+            message (Message): The message to check.
+
+        Returns:
+            bool: True if the message is a rename message, False otherwise.
+        """
+        return message.type == "name"
+
+    async def response(self, message: Message) -> None:
+        """Renames the user in the room's users.
+
+        Args:
+            message (Message): The rename message.
+        """
+        r = room.Room(message.room)
+        if to_id(message.oldid) in self.client.rooms[r.id].users:
+            user = self.client.rooms[r.id].users[to_id(message.oldid)]
+            if message.user is not None:
+                user.name = message.user
+                self.client.rooms[r.id].users[to_id(message.user)] = user
+                del self.client.rooms[r.id].users[to_id(message.oldid)]
 
 
 def setup(client: Client) -> List[BasePlugin]:
@@ -85,4 +113,4 @@ def setup(client: Client) -> List[BasePlugin]:
     Returns:
         List[BasePlugin]: A list of plugins to load.
     """
-    return [UsersHandler(client), JoinHandler(client), LeaveHandler(client)]
+    return [UsersHandler(client), JoinHandler(client), LeaveHandler(client), RenameHandler(client)]
