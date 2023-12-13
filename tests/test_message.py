@@ -130,7 +130,7 @@ class MessageTest(unittest.TestCase):
         m = message.Message("", "|pm|@foo|@bar|Hello!")
 
         self.assertEqual(m.type, "pm")
-        self.assertEqual(m.sender, "@foo")
+        self.assertEqual(m.user, "@foo")
         self.assertEqual(m.receiver, "@bar")
         self.assertEqual(m.message, "Hello!")
 
@@ -144,7 +144,7 @@ class MessageTest(unittest.TestCase):
         m = message.Message("", "|nametaken|@foo|sorry")
 
         self.assertEqual(m.type, "nametaken")
-        self.assertEqual(m.username, "@foo")
+        self.assertEqual(m.user, "@foo")
         self.assertEqual(m.message, "sorry")
 
     def test_challstr(self):
@@ -257,7 +257,7 @@ class MessageTest(unittest.TestCase):
 
         self.assertEqual(m.type, "player")
         self.assertEqual(m.player, "p1")
-        self.assertEqual(m.username, "Foo")
+        self.assertEqual(m.user, "Foo")
         self.assertEqual(m.avatar, "60")
         self.assertEqual(m.rating, 1200)
         self.assertEqual(m.room, "battle-gen3ou-1234567890")
@@ -266,7 +266,7 @@ class MessageTest(unittest.TestCase):
 
         self.assertEqual(m.type, "player")
         self.assertEqual(m.player, "p3")
-        self.assertEqual(m.username, "Bar")
+        self.assertEqual(m.user, "Bar")
         self.assertEqual(m.avatar, "koga")
         self.assertIsNone(m.rating)
 
@@ -274,7 +274,7 @@ class MessageTest(unittest.TestCase):
 
         self.assertEqual(m.type, "player")
         self.assertEqual(m.player, "p3")
-        self.assertEqual(m.username, "Bar")
+        self.assertEqual(m.user, "Bar")
         self.assertEqual(m.avatar, "koga")
         self.assertIsNone(m.rating)
 
@@ -282,7 +282,7 @@ class MessageTest(unittest.TestCase):
 
         self.assertEqual(m.type, "player")
         self.assertEqual(m.player, "p2")
-        self.assertFalse(m.username)
+        self.assertFalse(m.user)
         self.assertIsNone(m.avatar)
         self.assertIsNone(m.rating)
 
