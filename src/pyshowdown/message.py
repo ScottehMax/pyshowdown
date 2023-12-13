@@ -105,7 +105,7 @@ class Message:
             self.type = "chat"
             self.timestamp = None
             self.user = info[2]
-            self.message = info[3]
+            self.message = '|'.join(info[3:])
 
         elif self.type == ":":
             self.type = "timestamp"
@@ -115,7 +115,7 @@ class Message:
             self.type = "chat"
             self.timestamp = int(info[2])
             self.user = info[3]
-            self.message = info[4]
+            self.message = '|'.join(info[4:])
 
         elif self.type == "battle":
             self.roomid = info[2]
@@ -124,12 +124,12 @@ class Message:
 
         # Global messages
         elif self.type == "popup":
-            self.message = info[2]
+            self.message = '|'.join(info[2:])
 
         elif self.type == "pm":
             self.user = info[2]
             self.receiver = info[3]
-            self.message = info[4]
+            self.message = '|'.join(info[4:])
 
         elif self.type == "usercount":
             self.usercount = int(info[2])
