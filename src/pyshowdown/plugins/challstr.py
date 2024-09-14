@@ -43,6 +43,10 @@ class ChallstrHandler(BasePlugin):
                 result_str = result_str[1:]
                 result = json.loads(result_str)
 
+                self.client.logging_in = True
+
+                self.client.backoff = 1
+
                 await self.client.send(
                     "", "/trn {},0,{}".format(self.client.username, result["assertion"])
                 )

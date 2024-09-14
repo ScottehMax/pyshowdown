@@ -42,6 +42,8 @@ class Client:
         self.plugins: List["BasePlugin"] = []
         self.load_plugins()
         self.rooms: Dict[str, "Room"] = {}
+        self.logging_in: bool = False
+        self.backoff: int = 1
 
     def load_config(self) -> None:
         """Load config from config.ini."""
@@ -57,17 +59,16 @@ class Client:
     async def keep_connected(self) -> None:
         """Keeps the client connected to the server."""
         self.connected = False
-        timeout = 1
+        self.backoff = 1
         while not self.connected:
             try:
-                await asyncio.sleep(timeout)
+                await asyncio.sleep(self.backoff)
                 await self.connect()
                 self.connected = True
-                timeout = 1
                 await self.receive_forever()
             except Exception as e:
                 print(e)
-                timeout += 1
+            self.backoff *= 2
 
     async def close(self) -> None:
         """Close the connection."""
