@@ -1,3 +1,4 @@
+import asyncio
 import json
 from typing import List
 
@@ -35,21 +36,28 @@ class ChallstrHandler(BasePlugin):
         }
 
         async with aiohttp.ClientSession() as session:
-            async with session.post(base_url, data=data) as resp:
-                result_str = await resp.text()
-                self.client.cookies = resp.cookies
+            for _ in range(10):
+                try:
+                    async with session.post(base_url, data=data) as resp:
+                        result_str = await resp.text()
+                        self.client.cookies = resp.cookies
 
-                # strip the leading [
-                result_str = result_str[1:]
-                result = json.loads(result_str)
+                        # strip the leading [
+                        result_str = result_str[1:]
+                        result = json.loads(result_str)
 
-                self.client.logging_in = True
+                        self.client.logging_in = True
 
-                self.client.backoff = 1
+                        self.client.backoff = 1
 
-                await self.client.send(
-                    "", "/trn {},0,{}".format(self.client.username, result["assertion"])
-                )
+                        await self.client.send(
+                            "", "/trn {},0,{}".format(self.client.username, result["assertion"])
+                        )
+                        break
+
+                except Exception as e:
+                    print("Error logging in: {}".format(e))
+                    await asyncio.sleep(10)
 
 
 def setup(client: Client) -> List[BasePlugin]:
