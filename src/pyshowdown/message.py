@@ -234,10 +234,11 @@ def parse_formats(format_str: str) -> formats:
                 continue
             # this is a section
             in_section = True
-            section_number = int(item[1:])  # unused here for now
+            column_number = int(item[1:])  # unused here for now
         else:
             # this is a format
-            name, rule_num_str = item.split(",")
+            info = item.split(',')
+            name, rule_num_str = ','.join(info[0:-1]), info[-1]#
             rule_num = int(rule_num_str, 16)
             rules = []
 
