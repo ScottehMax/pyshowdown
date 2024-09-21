@@ -23,7 +23,6 @@ class Connection:
     async def connect(self) -> None:
         """Connect to the server."""
         self.session = aiohttp.ClientSession()
-        print("connecting...")
         if self.ssl_context is not None:
             self.ws = await self.session.ws_connect(self.url, ssl=self.ssl_context)
         else:

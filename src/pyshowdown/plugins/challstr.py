@@ -26,7 +26,7 @@ class ChallstrHandler(BasePlugin):
         Args:
             message (Message): The message to respond to.
         """
-        print("Got challstr! Trying to log in...")
+        self.client.print("Got challstr! Trying to log in...")
         base_url = "https://play.pokemonshowdown.com/action.php"
         data = {
             "act": "login",
@@ -56,7 +56,7 @@ class ChallstrHandler(BasePlugin):
                         break
 
                 except Exception as e:
-                    print("Error logging in: {}".format(e))
+                    self.client.print("Error logging in: {}".format(e))
                     await asyncio.sleep(10)
 
 

@@ -50,8 +50,9 @@ class JoinHandler(BasePlugin):
             message (Message): The join message.
         """
         r = room.Room(message.room)
-        user = User(message.user, message.rank, "", False)
-        self.client.rooms[r.id].users[user.id] = user
+        if message.user is not None:
+            user = User(message.user, message.rank, "", False)
+            self.client.rooms[r.id].users[user.id] = user
 
 
 class LeaveHandler(BasePlugin):

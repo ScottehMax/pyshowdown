@@ -37,13 +37,13 @@ class Client:
         self.username = username
         self.password = password
         self.connected = False
-        self.cookies: Optional[SimpleCookie[str]] = None
+        self.cookies: Optional[SimpleCookie] = None
         self.load_config()
         self.plugins: List["BasePlugin"] = []
-        self.load_plugins()
         self.rooms: Dict[str, "Room"] = {}
         self.logging_in: bool = False
         self.backoff: int = 1
+        self.load_plugins()
 
     def load_config(self) -> None:
         """Load config from config.ini."""
@@ -54,6 +54,7 @@ class Client:
 
     async def connect(self) -> None:
         """Connect to the server."""
+        self.print("connecting...")
         await self.conn.connect()
 
     async def keep_connected(self) -> None:
@@ -67,7 +68,7 @@ class Client:
                 self.connected = True
                 await self.receive_forever()
             except Exception as e:
-                print(e)
+                self.print(e)
             self.backoff *= 2
 
     async def close(self) -> None:
@@ -81,7 +82,7 @@ class Client:
             message (str): The message to send.
         """
         m = f"{room}|{message}"
-        print(">> " + m)
+        self.print(">> " + m)
         await self.conn.send(m)
 
     async def send_pm(self, user: str, message: str) -> None:
@@ -126,7 +127,7 @@ class Client:
                             if single_message:
                                 await self.handle_message(room, single_message)
         finally:
-            print("Connection closed.")
+            self.print("Connection closed.")
             await self.conn.close()
             self.connected = False
 
@@ -136,7 +137,7 @@ class Client:
         It should first import them, then instantiate the class
         which is a subclass of BasePlugin.
         """
-        print("Loading plugins...")
+        self.print("Loading plugins...")
 
         # always load the system plugins
         sys.path.append(os.path.join(os.path.dirname(__file__), "plugins"))
@@ -151,7 +152,7 @@ class Client:
                 for plugin in plugins:
                     self.plugins.append(plugin)
             except Exception as e:
-                print("Error loading plugin {}: {}".format(plugin_name, e))
+                self.print("Error loading plugin {}: {}".format(plugin_name, e))
 
     async def handle_message(self, room: str, msg_str: str) -> None:
         """Handles a message from the server.
@@ -164,7 +165,7 @@ class Client:
             room (str): The room the message was sent from.
             msg_str (str): The message received.
         """
-        print("<< " + msg_str)
+        self.print("<< " + msg_str)
         m = message.Message(room, msg_str)
 
         for plugin in self.plugins:
@@ -180,7 +181,7 @@ class Client:
                             await self.send(m.room, resp)
             except Exception as e:
                 plg = plugin.__class__.__name__
-                print("Error handling message in plugin {}: {}".format(plg, e))
+                self.print("Error handling message in plugin {}: {}".format(plg, e))
                 msg = str(e) + ": " + e.__doc__ if e.__doc__ is not None else str(e)
                 if m.user is not None:
                     await self.send_pm(m.user, msg)
@@ -200,6 +201,15 @@ class Client:
             room (str): The room to leave.
         """
         await self.send(room, "/leave")
+
+    @staticmethod
+    def print(msg) -> None:
+        """Prints a message. Intended to be possible to be overridden.
+
+        Args:
+            msg (str): The message to be printed.
+        """
+        print(msg)
 
     def __str__(self) -> str:
         """Returns a string representation of the client.
