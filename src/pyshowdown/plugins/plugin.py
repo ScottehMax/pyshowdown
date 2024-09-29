@@ -5,6 +5,9 @@ from pyshowdown.message import Message
 
 
 class BasePlugin:
+    # whether the plugin should respond to messages sent before joining the room
+    scrollback_access: bool = False
+
     def __init__(self, client: Client):
         """Initializes the plugin.
 
