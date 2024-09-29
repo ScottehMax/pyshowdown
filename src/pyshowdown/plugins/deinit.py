@@ -2,7 +2,7 @@ from typing import List
 
 from pyshowdown.client import Client
 from pyshowdown.plugins.plugin import BasePlugin
-from pyshowdown.message import Message
+from pyshowdown.message import Message, DeinitMessage
 
 
 class DeinitHandler(BasePlugin):
@@ -15,7 +15,7 @@ class DeinitHandler(BasePlugin):
         Returns:
             bool: True if the message is a deinit message, False otherwise.
         """
-        return message.type == "deinit"
+        return isinstance(message, DeinitMessage)
 
     async def response(self, message: Message) -> None:
         """Removes the room from the Client's room dict.

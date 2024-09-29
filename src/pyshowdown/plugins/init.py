@@ -3,7 +3,7 @@ from typing import List
 from pyshowdown import room
 from pyshowdown.client import Client
 from pyshowdown.plugins.plugin import BasePlugin
-from pyshowdown.message import Message
+from pyshowdown.message import Message, InitMessage
 
 
 class InitHandler(BasePlugin):
@@ -16,7 +16,7 @@ class InitHandler(BasePlugin):
         Returns:
             bool: True if the message is an init message, False otherwise.
         """
-        return message.type == "init"
+        return isinstance(message, InitMessage)
 
     async def response(self, message: Message) -> None:
         """Creates the room in the Client's room dict.

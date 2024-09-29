@@ -166,7 +166,7 @@ class Client:
             msg_str (str): The message received.
         """
         self.print("<< " + msg_str)
-        m = message.Message(room, msg_str)
+        m = message.parse_message(room, msg_str)
 
         for plugin in self.plugins:
             try:
@@ -174,17 +174,15 @@ class Client:
                 if matched:
                     resp = await plugin.response(m)
                     if resp:
-                        if m.type == "pm":
-                            if m.user is not None:
-                                await self.send_pm(m.user, resp)
+                        if isinstance(m, message.PMMessage):
+                            await self.send_pm(m.user.name, resp)
                         else:
                             await self.send(m.room, resp)
             except Exception as e:
                 plg = plugin.__class__.__name__
                 self.print("Error handling message in plugin {}: {}".format(plg, e))
                 msg = str(e) + ": " + e.__doc__ if e.__doc__ is not None else str(e)
-                if m.user is not None:
-                    await self.send_pm(m.user, msg)
+                self.print(msg)
 
     async def join(self, room: str) -> None:
         """Joins the given room.
