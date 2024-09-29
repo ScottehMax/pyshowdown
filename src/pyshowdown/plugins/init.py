@@ -3,7 +3,7 @@ from typing import List
 from pyshowdown import room
 from pyshowdown.client import Client
 from pyshowdown.plugins.plugin import BasePlugin
-from pyshowdown.message import Message, InitMessage
+from pyshowdown.message import Message, InitMessage, TimestampMessage
 
 
 class InitHandler(BasePlugin):
@@ -28,6 +28,28 @@ class InitHandler(BasePlugin):
         self.client.rooms[r.id] = r
 
 
+class TimestampHandler(BasePlugin):
+    async def match(self, message: Message) -> bool:
+        """Returns true if the message is a timestamp message.
+
+        Args:
+            message (Message): The message to check.
+
+        Returns:
+            bool: True if the message is a timestamp message, False otherwise.
+        """
+        return isinstance(message, TimestampMessage)
+
+    async def response(self, message: Message) -> None:
+        """Sets the room timestamp in the Client's room dict.
+
+        Args:
+            message (Message): The timestamp message.
+        """
+        if isinstance(message, TimestampMessage):
+            self.client.rooms[message.room].join_time = message.timestamp
+
+
 def setup(client: Client) -> List[BasePlugin]:
     """Return a list of plugins to load.
 
@@ -37,4 +59,4 @@ def setup(client: Client) -> List[BasePlugin]:
     Returns:
         List[BasePlugin]: A list of plugins to load.
     """
-    return [InitHandler(client)]
+    return [InitHandler(client), TimestampHandler(client)]

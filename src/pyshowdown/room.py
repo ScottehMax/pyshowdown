@@ -21,6 +21,7 @@ class Room:
                 # strip the password and store separately
                 self.password = self.id.split("-")[-1]
                 self.id = self.id.replace("-" + self.password, "")
+        self.join_time: Optional[int] = None
 
     def __str__(self) -> str:
         return "Room({})".format(self.id)

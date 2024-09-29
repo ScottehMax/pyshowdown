@@ -168,6 +168,14 @@ class Client:
         self.print("<< " + msg_str)
         m = message.parse_message(room, msg_str)
 
+        if isinstance(m, message.ChatMessage):
+            if room in self.rooms:
+                r = self.rooms[room]
+                if r.join_time is not None and m.timestamp is not None:
+                    if m.timestamp < r.join_time:
+                        # sent before we got here, bail out
+                        return
+
         for plugin in self.plugins:
             try:
                 matched = await plugin.match(m)
