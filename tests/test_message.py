@@ -73,8 +73,16 @@ class MessageTest(unittest.TestCase):
         m = message.parse_message("", "|name|@bar|foo")
 
         assert isinstance(m, message.RenameMessage)
-        self.assertEqual(m.user.name, "@bar")
+        self.assertEqual(m.user.name, "bar")
         self.assertEqual(m.oldid, "foo")
+
+        m2 = message.parse_message("", "|N|#Bar@!|foo")
+        assert isinstance(m2, message.RenameMessage)
+        self.assertEqual(m2.user.name, "Bar")
+        self.assertEqual(m2.oldid, "foo")
+        self.assertEqual(m2.user.rank, "#")
+        self.assertTrue(m2.user.away)
+
 
     def test_chat(self):
         m = message.parse_message("lobby", "|c|@foo|hello!")

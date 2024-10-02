@@ -348,7 +348,7 @@ def parse_message(room: str, message_str: str) -> Message:
             s = u[1:].split("@")
             name, status = (s[0], "@".join(s[1:]))
         else:
-            name, status = u, ""
+            name, status = u[1:], ""
 
         status_str = status
 
