@@ -5,16 +5,19 @@ import os
 import ssl
 import sys
 from http.cookies import SimpleCookie
-from typing import Optional, List, Dict, TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, List, Optional
 
 import aiohttp
+from aiohttp.abc import AbstractCookieJar
 
 from pyshowdown import connection, message
-
 
 if TYPE_CHECKING:
     from pyshowdown.plugins.plugin import BasePlugin
     from pyshowdown.room import Room
+
+
+THROTTLE = 0.6
 
 
 class Client:
@@ -23,6 +26,7 @@ class Client:
         username: str,
         password: str,
         url: str,
+        login_type: str = "password",
         ssl_context: Optional[ssl.SSLContext] = None,
     ):
         """Client class constructor.
@@ -31,13 +35,15 @@ class Client:
             username (str): The username to use.
             password (str): The password to use.
             url (str): The url to connect to.
+            login_type (str): The type of login to use. Either "password" or "oauth".
             ssl_context (ssl.SSLContext, optional): The SSL context. Defaults to None.
         """
         self.conn = connection.Connection(url, ssl_context=ssl_context)
         self.username = username
         self.password = password
+        self.login_type = login_type
         self.connected = False
-        self.cookies: Optional[SimpleCookie] = None
+        self.cookies: Optional[AbstractCookieJar] = None
         self.load_config()
         self.plugins: List["BasePlugin"] = []
         self.rooms: Dict[str, "Room"] = {}
@@ -61,6 +67,7 @@ class Client:
         """Keeps the client connected to the server."""
         self.connected = False
         self.backoff = 1
+        asyncio.create_task(self.start_message_queue())
         while not self.connected:
             try:
                 await asyncio.sleep(self.backoff)
@@ -75,6 +82,15 @@ class Client:
         """Close the connection."""
         await self.conn.close()
 
+    async def start_message_queue(self) -> None:
+        """Starts the message queue."""
+        self.queue = asyncio.Queue()
+        while True:
+            m = await self.queue.get()
+            self.print(">> " + m)
+            await self.conn.send(m)
+            await asyncio.sleep(THROTTLE)
+
     async def send(self, room: str, message: str) -> None:
         """Sends message to the server.
 
@@ -82,8 +98,7 @@ class Client:
             message (str): The message to send.
         """
         m = f"{room}|{message}"
-        self.print(">> " + m)
-        await self.conn.send(m)
+        await self.queue.put(m)
 
     async def send_pm(self, user: str, message: str) -> None:
         """Sends a private message to the user.
@@ -125,7 +140,7 @@ class Client:
 
                         for single_message in messages:
                             if single_message:
-                                await self.handle_message(room, single_message)
+                                asyncio.create_task(self.handle_message(room, single_message))
         finally:
             self.print("Connection closed.")
             await self.conn.close()

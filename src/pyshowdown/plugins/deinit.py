@@ -20,10 +20,15 @@ class DeinitHandler(BasePlugin):
     async def response(self, message: Message) -> None:
         """Removes the room from the Client's room dict.
 
+        PS also sends a deinit message if you join a room using a
+        room alias (appearing as if from the alias room), so we
+        should check if we have it first.
+
         Args:
             message (Message): The deinit message.
         """
-        del self.client.rooms[message.room]
+        if message.room in self.client.rooms:
+            del self.client.rooms[message.room]
 
 
 def setup(client: Client) -> List[BasePlugin]:

@@ -283,6 +283,12 @@ class PageHTMLMessage(Message):
         self.html = html
 
 
+class ErrorMessage(Message):
+    def __init__(self, room: str, message_str: str, error: str):
+        super().__init__(room, message_str)
+        self.error = error
+
+
 def parse_message(room: str, message_str: str) -> Message:
     info = message_str.split("|")
     if len(info) > 1:
@@ -333,7 +339,20 @@ def parse_message(room: str, message_str: str) -> Message:
         return UHTMLChangeMessage(room, message_str, info[2], info[3])
 
     elif message_type in ["j", "J", "join"]:
-        user = User(info[2][1:], info[2][0], "", False)
+        u = info[2]
+        if "@" in u[1:]:
+            s = u[1:].split("@")
+            name, status = (s[0], "@".join(s[1:]))
+        else:
+            name, status = u[1:], ""
+
+        away = False
+        if status:
+            if status[0] == "!":
+                away = True
+                status = status[1:]
+        
+        user = User(name, u[0], status, away)
         return JoinMessage(room, message_str, user)
 
     elif message_type in ["l", "L", "leave"]:
@@ -455,6 +474,10 @@ def parse_message(room: str, message_str: str) -> Message:
     elif message_type == "pagehtml":
         html = '|'.join(info[2:])
         return PageHTMLMessage(room, message_str, html)
+    
+    elif message_type == "error":
+        error = '|'.join(info[2:])
+        return ErrorMessage(room, message_str, error)
 
     else:
         return Message(room, message_str)
