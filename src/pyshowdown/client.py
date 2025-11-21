@@ -67,7 +67,9 @@ class Client:
         """Keeps the client connected to the server."""
         self.connected = False
         self.backoff = 1
-        asyncio.create_task(self.start_message_queue())
+        # Keep a reference to the message-queue consumer task so callers
+        # can cancel it explicitly during shutdown.
+        self._message_queue_task = asyncio.create_task(self.start_message_queue())
         while not self.connected:
             try:
                 await asyncio.sleep(self.backoff)
@@ -80,16 +82,65 @@ class Client:
 
     async def close(self) -> None:
         """Close the connection."""
+        # Cancel the message-queue task if it exists so it won't attempt
+        # to use the event loop while it's shutting down.
+        task = getattr(self, "_message_queue_task", None)
+        if task is not None and not task.done():
+            try:
+                task.cancel()
+            except Exception:
+                pass
+            try:
+                await asyncio.gather(task, return_exceptions=True)
+            except Exception:
+                # ignore failures while cancelling
+                pass
+
         await self.conn.close()
 
     async def start_message_queue(self) -> None:
         """Starts the message queue."""
+        # Create the queue used for outgoing messages. The consumer will
+        # handle cancellation and loop-closed situations so that shutdown
+        # can proceed without background tasks scheduling callbacks on a
+        # closed loop.
         self.queue = asyncio.Queue()
-        while True:
-            m = await self.queue.get()
-            self.print(">> " + m)
-            await self.conn.send(m)
-            await asyncio.sleep(THROTTLE)
+        try:
+            while True:
+                try:
+                    m = await self.queue.get()
+                except asyncio.CancelledError:
+                    # Consumer was cancelled, exit cleanly.
+                    break
+                except RuntimeError:
+                    # Event loop is likely closed, stop the consumer.
+                    break
+
+                # If the loop is closing, avoid scheduling work.
+                try:
+                    self.print(">> " + m)
+                    await self.conn.send(m)
+                except asyncio.CancelledError:
+                    break
+                except RuntimeError:
+                    # Underlying event loop closed while sending.
+                    break
+
+                try:
+                    await asyncio.sleep(THROTTLE)
+                except asyncio.CancelledError:
+                    break
+        finally:
+            # Best-effort cleanup: if queue still exists, drain it to
+            # avoid leaving producers blocked on put().
+            try:
+                while not self.queue.empty():
+                    try:
+                        self.queue.get_nowait()
+                    except Exception:
+                        break
+            except Exception:
+                pass
 
     async def send(self, room: str, message: str) -> None:
         """Sends message to the server.
@@ -98,7 +149,20 @@ class Client:
             message (str): The message to send.
         """
         m = f"{room}|{message}"
-        await self.queue.put(m)
+        # If the queue hasn't been created yet (not connected), try to
+        # create it or raise a clear error. This avoids scheduling put()
+        # on a nonexistent/closed loop.
+        if not hasattr(self, "queue") or self.queue is None:
+            # Create a local queue so callers won't error if the consumer
+            # hasn't started yet. The keep_connected logic normally starts
+            # the consumer before connecting, so this is defensive.
+            self.queue = asyncio.Queue()
+
+        try:
+            await self.queue.put(m)
+        except RuntimeError:
+            # Event loop is closed; ignore the send request.
+            return
 
     async def send_pm(self, user: str, message: str) -> None:
         """Sends a private message to the user.
