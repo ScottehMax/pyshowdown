@@ -19,14 +19,26 @@ class Connection:
         self.url = url
         self.ws: Optional[aiohttp.ClientWebSocketResponse] = None
         self.ssl_context = ssl_context
+        self.session: Optional[aiohttp.ClientSession] = None
 
     async def connect(self) -> None:
         """Connect to the server."""
         self.session = aiohttp.ClientSession()
-        if self.ssl_context is not None:
-            self.ws = await self.session.ws_connect(self.url, ssl=self.ssl_context)
-        else:
-            self.ws = await self.session.ws_connect(self.url)
+        if self.session is None:
+            raise ConnectionError("Failed to create aiohttp ClientSession.")
+        try:
+            if self.ssl_context is not None:
+                self.ws = await self.session.ws_connect(self.url, ssl=self.ssl_context)
+            else:
+                self.ws = await self.session.ws_connect(self.url)
+        except Exception:
+            # ensure we don't leak the session on failure
+            try:
+                await self.session.close()
+            except Exception:
+                pass
+            self.session = None
+            raise
 
     async def send(self, message: str) -> None:
         """Send a message to the server.
@@ -60,9 +72,21 @@ class Connection:
         Raises:
             ConnectionError: If no connection is established.
         """
-        if self.ws is None:
-            raise ConnectionError("Not connected to server.")
-        await self.ws.close()
+        # Close websocket if open (not treating missing ws as fatal)
+        if self.ws is not None:
+            try:
+                await self.ws.close()
+            except Exception:
+                pass
+            self.ws = None
+
+        # Also close the aiohttp ClientSession (if present)
+        if self.session is not None:
+            try:
+                await self.session.close()
+            except Exception:
+                pass
+            self.session = None
 
     def __str__(self) -> str:
         """Return a string representation of the connection.

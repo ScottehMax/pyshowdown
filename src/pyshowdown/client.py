@@ -56,7 +56,7 @@ class Client:
         self.config = configparser.ConfigParser()
         self.config.read("config.ini")
         self.plugin_dir = self.config["user"].get("plugin_dir", "system")
-        self.plugin_list = self.config["user"].get("plugins").split(",")
+        self.plugin_list = self.config["user"].get("plugins", "").split(",")
 
     async def connect(self) -> None:
         """Connect to the server."""
@@ -140,7 +140,9 @@ class Client:
 
                         for single_message in messages:
                             if single_message:
-                                asyncio.create_task(self.handle_message(room, single_message))
+                                asyncio.create_task(
+                                    self.handle_message(room, single_message)
+                                )
         finally:
             self.print("Connection closed.")
             await self.conn.close()
@@ -241,9 +243,7 @@ class Client:
         Returns:
             str: The string representation of the client.
         """
-        return "Client({})".format(
-            self.conn.url
-        )
+        return "Client({})".format(self.conn.url)
 
     def __repr__(self) -> str:
         """Returns a representation of the client.
