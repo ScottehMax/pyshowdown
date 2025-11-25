@@ -7,5 +7,10 @@ if __name__ == "__main__":
         password="password",
         url="wss://sim3.psim.us/showdown/websocket",
     )
+
+    # System plugins (challstr, init, deinit, title, users) are automatically loaded
+    # Load any additional custom plugins here if needed:
+    # c.load_plugin("custom_plugin_name")
+
     loop = asyncio.get_event_loop()
     loop.run_until_complete(c.keep_connected())

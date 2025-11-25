@@ -44,19 +44,47 @@ class Client:
         self.login_type = login_type
         self.connected = False
         self.cookies: Optional[AbstractCookieJar] = None
-        self.load_config()
         self.plugins: List["BasePlugin"] = []
         self.rooms: Dict[str, "Room"] = {}
         self.logging_in: bool = False
         self.backoff: int = 1
-        self.load_plugins()
+        self._setup_plugin_paths()
+        self._load_system_plugins()
 
-    def load_config(self) -> None:
-        """Load config from config.ini."""
-        self.config = configparser.ConfigParser()
-        self.config.read("config.ini")
-        self.plugin_dir = self.config["user"].get("plugin_dir", "system")
-        self.plugin_list = self.config["user"].get("plugins", "").split(",")
+    def _setup_plugin_paths(self) -> None:
+        """Set up sys.path to include the system plugins directory."""
+        system_plugins_path = os.path.join(os.path.dirname(__file__), "plugins")
+        if system_plugins_path not in sys.path:
+            sys.path.append(system_plugins_path)
+
+    def _load_system_plugins(self) -> None:
+        """Load the default system plugins required for basic functionality."""
+        system_plugins = ["challstr", "init", "deinit", "title", "users"]
+        for plugin_name in system_plugins:
+            self.load_plugin(plugin_name)
+
+    def load_plugin(self, plugin_name: str) -> bool:
+        """Load a single plugin by name.
+
+        The plugin module must export a setup(client) function that returns
+        a list of BasePlugin instances.
+
+        Args:
+            plugin_name (str): The name of the plugin module to load.
+
+        Returns:
+            bool: True if plugin loaded successfully, False otherwise.
+        """
+        try:
+            plugin_module = importlib.import_module(plugin_name)
+            plugins = plugin_module.setup(self)
+            for plugin in plugins:
+                self.plugins.append(plugin)
+            self.print(f"Successfully loaded plugin: {plugin_name}")
+            return True
+        except Exception as e:
+            self.print(f"Error loading plugin {plugin_name}: {e}")
+            return False
 
     async def connect(self) -> None:
         """Connect to the server."""
@@ -211,29 +239,6 @@ class Client:
             self.print("Connection closed.")
             await self.conn.close()
             self.connected = False
-
-    def load_plugins(self) -> None:
-        """Loads all the plugins from the directory set in config.
-
-        It should first import them, then instantiate the class
-        which is a subclass of BasePlugin.
-        """
-        self.print("Loading plugins...")
-
-        # always load the system plugins
-        sys.path.append(os.path.join(os.path.dirname(__file__), "plugins"))
-
-        if self.plugin_dir != "system":
-            sys.path.append(self.plugin_dir)
-
-        for plugin_name in self.plugin_list:
-            try:
-                plugin_module = importlib.import_module(plugin_name)
-                plugins = plugin_module.setup(self)
-                for plugin in plugins:
-                    self.plugins.append(plugin)
-            except Exception as e:
-                self.print("Error loading plugin {}: {}".format(plugin_name, e))
 
     async def handle_message(self, room: str, msg_str: str) -> None:
         """Handles a message from the server.

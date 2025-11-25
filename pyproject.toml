@@ -1,9 +1,32 @@
-[build-system]
-requires = [
-    "setuptools>=42",
-    "wheel"
+[project]
+name = "pyshowdown"
+version = "0.3.0"
+description = "A client library for the Pokémon Showdown! battle simulator."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+authors = [
+    {name = "Scott Maxwell", email = "scott@scotteh.me"}
 ]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent"
+]
+dependencies = [
+    "aiofiles>=0.8.0",
+    "aiohttp>=3.8.6",
+]
+
+[project.urls]
+Homepage = "https://github.com/ScottehMax/pyshowdown"
+"Bug Tracker" = "https://github.com/ScottehMax/pyshowdown/issues"
+
+[build-system]
+requires = ["setuptools>=80.9.0", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [tool.pyright]
 include = ["src"]
@@ -12,10 +35,3 @@ exclude = [
     "**/__pycache__",
     "**/pyshowdown.egg-info"
 ]
-venv = "venv"
-
-reportMissingImports = true
-reportMissingTypeStubs = false
-
-pythonVersion = "3.6"
-pythonPlatform = "Windows"
