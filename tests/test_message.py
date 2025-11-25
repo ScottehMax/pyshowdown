@@ -83,7 +83,6 @@ class MessageTest(unittest.TestCase):
         self.assertEqual(m2.user.rank, "#")
         self.assertTrue(m2.user.away)
 
-
     def test_chat(self):
         m = message.parse_message("lobby", "|c|@foo|hello!")
 
@@ -289,11 +288,17 @@ class MessageTest(unittest.TestCase):
         self.assertIsNone(m.rating)
 
     def test_noproto(self):
-        m = message.parse_message("battle-gen3ou-1234567890", "No Pokémon, item, move, ability or nature named 'healee' was found. Showing the data of 'Healer' instead.")
+        m = message.parse_message(
+            "battle-gen3ou-1234567890",
+            "No Pokémon, item, move, ability or nature named 'healee' was found. Showing the data of 'Healer' instead.",
+        )
 
         assert isinstance(m, message.Message)
         self.assertEqual(m.room, "battle-gen3ou-1234567890")
-        self.assertEqual(m.message_str, "No Pokémon, item, move, ability or nature named 'healee' was found. Showing the data of 'Healer' instead.")
+        self.assertEqual(
+            m.message_str,
+            "No Pokémon, item, move, ability or nature named 'healee' was found. Showing the data of 'Healer' instead.",
+        )
 
     def test_fuzz_message(self):
         # Some of these will be invalid and end up being a generic Message.

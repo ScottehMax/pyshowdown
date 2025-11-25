@@ -2,7 +2,24 @@ from pyshowdown.utils import to_id
 
 
 RANKS = set(["~", "&", "#", "★", "*", "@", "%", "☆", "§", "+", "^", " ", "!", "‽"])
-RANK_ORDER = {"~": 101, "#": 102, "&": 103, "★": 104, "@": 105, "%": 106, "§": 107, "_": 108, "*": 109, "☆": 110, "+": 200, " ": 201, "!": 301, "✖": 302, "‽": 303}
+RANK_ORDER = {
+    "~": 101,
+    "#": 102,
+    "&": 103,
+    "★": 104,
+    "@": 105,
+    "%": 106,
+    "§": 107,
+    "_": 108,
+    "*": 109,
+    "☆": 110,
+    "+": 200,
+    " ": 201,
+    "!": 301,
+    "✖": 302,
+    "‽": 303,
+}
+
 
 class User:
     def __init__(self, name: str, rank: str, status: str, away: bool):
@@ -36,7 +53,7 @@ class User:
             and self.status == other.status
             and self.away == other.away
         )
-    
+
     def __gt__(self, other: object) -> bool:
         if not isinstance(other, User):
             return NotImplemented
@@ -56,7 +73,7 @@ class User:
         else:
             status_str = ""
         return "{}{}{}".format(self.rank, self.name, status_str)
-    
+
     @property
     def fullname(self) -> str:
         """Return the user's name with rank."""

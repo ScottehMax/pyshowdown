@@ -3,19 +3,19 @@ import unittest
 
 from pyshowdown.user import User
 
+
 class UserTest(unittest.TestCase):
     def test_user(self):
-        
-        user = User('TeSt', '@', "", True)
+        user = User("TeSt", "@", "", True)
 
-        self.assertEqual(user.name, 'TeSt')
-        self.assertEqual(user.id, 'test')
-        self.assertEqual(user.rank, '@')
+        self.assertEqual(user.name, "TeSt")
+        self.assertEqual(user.id, "test")
+        self.assertEqual(user.rank, "@")
         self.assertEqual(user.fullname, "@TeSt")
         self.assertEqual(user.away, True)
         self.assertEqual(user.to_string(), "@TeSt@!")
 
-        user2 = User('test', '@', "", False)
+        user2 = User("test", "@", "", False)
 
         self.assertEqual(user2.to_string(), "@test")
 
@@ -64,5 +64,5 @@ class UserTest(unittest.TestCase):
                 "oscar",
                 "romeo",
                 "quebec",
-            ]
+            ],
         )

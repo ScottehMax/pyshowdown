@@ -3,7 +3,13 @@ from typing import List
 from pyshowdown import room
 from pyshowdown.client import Client
 from pyshowdown.plugins.plugin import BasePlugin
-from pyshowdown.message import Message, UsersMessage, JoinMessage, LeaveMessage, RenameMessage
+from pyshowdown.message import (
+    Message,
+    UsersMessage,
+    JoinMessage,
+    LeaveMessage,
+    RenameMessage,
+)
 from pyshowdown.user import User
 from pyshowdown.utils import to_id
 
@@ -117,4 +123,9 @@ def setup(client: Client) -> List[BasePlugin]:
     Returns:
         List[BasePlugin]: A list of plugins to load.
     """
-    return [UsersHandler(client), JoinHandler(client), LeaveHandler(client), RenameHandler(client)]
+    return [
+        UsersHandler(client),
+        JoinHandler(client),
+        LeaveHandler(client),
+        RenameHandler(client),
+    ]

@@ -67,8 +67,8 @@ def parse_formats(format_str: str) -> formats:
             column_number = int(item[1:])  # unused here for now
         else:
             # this is a format
-            info = item.split(',')
-            name, rule_num_str = ','.join(info[0:-1]), info[-1]#
+            info = item.split(",")
+            name, rule_num_str = ",".join(info[0:-1]), info[-1]
             rule_num = int(rule_num_str, 16)
             rules = []
 
@@ -105,7 +105,9 @@ class TitleMessage(Message):
 
 
 class UsersMessage(Message):
-    def __init__(self, room: str, message_str: str, usercount: int, users: Dict[str, User]):
+    def __init__(
+        self, room: str, message_str: str, usercount: int, users: Dict[str, User]
+    ):
         super().__init__(room, message_str)
         self.usercount = usercount
         self.users = users
@@ -144,7 +146,9 @@ class LeaveMessage(Message):
 
 
 class RenameMessage(Message):
-    def __init__(self, room: str, message_str: str, user: User, oldid: str, status_str: str):
+    def __init__(
+        self, room: str, message_str: str, user: User, oldid: str, status_str: str
+    ):
         super().__init__(room, message_str)
         self.user = user
         self.oldid = oldid
@@ -152,7 +156,14 @@ class RenameMessage(Message):
 
 
 class ChatMessage(Message):
-    def __init__(self, room: str, message_str: str, user: User, message: str, timestamp: Optional[int] = None):
+    def __init__(
+        self,
+        room: str,
+        message_str: str,
+        user: User,
+        message: str,
+        timestamp: Optional[int] = None,
+    ):
         super().__init__(room, message_str)
         self.user = user
         self.message = message
@@ -166,7 +177,9 @@ class TimestampMessage(Message):
 
 
 class BattleMessage(Message):
-    def __init__(self, room: str, message_str: str, roomid: str, user1: str, user2: str):
+    def __init__(
+        self, room: str, message_str: str, roomid: str, user1: str, user2: str
+    ):
         super().__init__(room, message_str)
         self.roomid = roomid
         self.user1 = user1
@@ -180,7 +193,9 @@ class PopupMessage(Message):
 
 
 class PMMessage(Message):
-    def __init__(self, room: str, message_str: str, user: User, receiver: User, message: str):
+    def __init__(
+        self, room: str, message_str: str, user: User, receiver: User, message: str
+    ):
         super().__init__(room, message_str)
         self.user = user
         self.receiver = receiver
@@ -207,7 +222,15 @@ class ChallstrMessage(Message):
 
 
 class UpdateUserMessage(Message):
-    def __init__(self, room: str, message_str: str, user: User, named: bool, avatar: str, settings: Dict[str, str]):
+    def __init__(
+        self,
+        room: str,
+        message_str: str,
+        user: User,
+        named: bool,
+        avatar: str,
+        settings: Dict[str, str],
+    ):
         super().__init__(room, message_str)
         self.user = user
         self.named = named
@@ -234,7 +257,9 @@ class UpdateChallengesMessage(Message):
 
 
 class QueryResponseMessage(Message):
-    def __init__(self, room: str, message_str: str, query_type: str, json_data: Dict[str, str]):
+    def __init__(
+        self, room: str, message_str: str, query_type: str, json_data: Dict[str, str]
+    ):
         super().__init__(room, message_str)
         self.query_type = query_type
         self.json_data = json_data
@@ -351,7 +376,7 @@ def parse_message(room: str, message_str: str) -> Message:
             if status[0] == "!":
                 away = True
                 status = status[1:]
-        
+
         user = User(name, u[0], status, away)
         return JoinMessage(room, message_str, user)
 
@@ -382,14 +407,14 @@ def parse_message(room: str, message_str: str) -> Message:
 
     elif message_type in ["c", "chat"]:
         rank, name = info[2][0], info[2][1:]
-        message = '|'.join(info[3:])
+        message = "|".join(info[3:])
         user = User(name, rank, "", False)
         return ChatMessage(room, message_str, user, message)
 
     elif message_type == "c:":
         timestamp = int(info[2])
         rank, name = info[3][0], info[3][1:]
-        message = '|'.join(info[4:])
+        message = "|".join(info[4:])
         user = User(name, rank, "", False)
         return ChatMessage(room, message_str, user, message, timestamp)
 
@@ -404,13 +429,13 @@ def parse_message(room: str, message_str: str) -> Message:
         return BattleMessage(room, message_str, roomid, user1, user2)
 
     elif message_type == "popup":
-        message = '|'.join(info[2:])
+        message = "|".join(info[2:])
         return PopupMessage(room, message_str, message)
 
     elif message_type == "pm":
         user_str = info[2]
         receiver_str = info[3]
-        message = '|'.join(info[4:])
+        message = "|".join(info[4:])
         user = User(user_str[1:], user_str[0], "", False)
         receiver = User(receiver_str[1:], receiver_str[0], "", False)
         return PMMessage(room, message_str, user, receiver, message)
@@ -470,13 +495,13 @@ def parse_message(room: str, message_str: str) -> Message:
         avatar = info[4] if len(info) > 4 else None
         rating = int(info[5]) if len(info) > 5 and info[5] else None
         return PlayerMessage(room, message_str, player, name, avatar, rating)
-    
+
     elif message_type == "pagehtml":
-        html = '|'.join(info[2:])
+        html = "|".join(info[2:])
         return PageHTMLMessage(room, message_str, html)
-    
+
     elif message_type == "error":
-        error = '|'.join(info[2:])
+        error = "|".join(info[2:])
         return ErrorMessage(room, message_str, error)
 
     else:

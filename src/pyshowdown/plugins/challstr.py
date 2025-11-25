@@ -16,7 +16,9 @@ from pyshowdown.plugins.plugin import BasePlugin
 base_url = "https://play.pokemonshowdown.com/api"
 
 
-async def save_cookies(cookie_jar: AbstractCookieJar, filename: str = "cookies.json") -> None:
+async def save_cookies(
+    cookie_jar: AbstractCookieJar, filename: str = "cookies.json"
+) -> None:
     """Save cookies from an aiohttp CookieJar to a JSON file.
 
     Args:
@@ -24,19 +26,19 @@ async def save_cookies(cookie_jar: AbstractCookieJar, filename: str = "cookies.j
         filename (str): The name of the file to save cookies to.
     """
     cookies = []
-    
+
     for cookie in cookie_jar:
         cookie_dict = {
-            'name': cookie.key,
-            'value': cookie.value,
-            'domain': cookie.get('domain'),
-            'path': cookie.get('path'),
-            'secure': cookie.get('secure', False),
-            'max_age': cookie.get('max-age')
+            "name": cookie.key,
+            "value": cookie.value,
+            "domain": cookie.get("domain"),
+            "path": cookie.get("path"),
+            "secure": cookie.get("secure", False),
+            "max_age": cookie.get("max-age"),
         }
         cookies.append(cookie_dict)
 
-    async with aiofiles.open(filename, 'w') as f:
+    async with aiofiles.open(filename, "w") as f:
         await f.write(json.dumps(cookies, indent=2))
 
 
@@ -48,7 +50,7 @@ async def load_cookies(filename: str = "cookies.json") -> Optional[CookieJar]:
     """
     try:
         cookie_jar = CookieJar()
-        async with aiofiles.open(filename, 'r') as f:
+        async with aiofiles.open(filename, "r") as f:
             try:
                 cookies = json.loads(await f.read())
             except json.JSONDecodeError:
@@ -56,15 +58,17 @@ async def load_cookies(filename: str = "cookies.json") -> Optional[CookieJar]:
 
         for cookie in cookies:
             morsel = SimpleCookie()
-            morsel[cookie['name']] = cookie['value']
-            morsel[cookie['name']]['domain'] = cookie['domain']
-            morsel[cookie['name']]['path'] = cookie['path']
-            if cookie.get('secure', False):
-                morsel[cookie['name']]['secure'] = True
-            if cookie.get('max_age') is not None:
-                morsel[cookie['name']]['max-age'] = cookie['max_age']
-            
-            cookie_jar.update_cookies(morsel, response_url=yarl.URL(f"https://{cookie['domain']}"))
+            morsel[cookie["name"]] = cookie["value"]
+            morsel[cookie["name"]]["domain"] = cookie["domain"]
+            morsel[cookie["name"]]["path"] = cookie["path"]
+            if cookie.get("secure", False):
+                morsel[cookie["name"]]["secure"] = True
+            if cookie.get("max_age") is not None:
+                morsel[cookie["name"]]["max-age"] = cookie["max_age"]
+
+            cookie_jar.update_cookies(
+                morsel, response_url=yarl.URL(f"https://{cookie['domain']}")
+            )
 
         return cookie_jar
     except FileNotFoundError:
@@ -87,10 +91,12 @@ async def password_login(client: Client, challstr: str) -> None:
 
         async with aiohttp.ClientSession(cookie_jar=cookie_jar) as session:
             try:
-                async with session.get(f"{base_url}/upkeep", data={"challstr": challstr}) as resp:
+                async with session.get(
+                    f"{base_url}/upkeep", data={"challstr": challstr}
+                ) as resp:
                     if resp.status == 200:
                         result_str = await resp.text()
-                        if result_str.startswith(']'):
+                        if result_str.startswith("]"):
                             result_str = result_str[1:]
                         result = json.loads(result_str)
 
@@ -141,7 +147,9 @@ async def password_login(client: Client, challstr: str) -> None:
 
     if valid_cookies and result and result.get("assertion"):
         client.logging_in = True
-        await client.send("", "/trn {},0,{}".format(client.username, result["assertion"]))
+        await client.send(
+            "", "/trn {},0,{}".format(client.username, result["assertion"])
+        )
     else:
         client.print("Failed to log in after multiple attempts.")
 
