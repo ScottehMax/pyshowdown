@@ -35,3 +35,9 @@ exclude = [
     "**/__pycache__",
     "**/pyshowdown.egg-info"
 ]
+
+[dependency-groups]
+dev = [
+    "sphinx>=7.4.7",
+    "sphinx-autodoc-typehints>=2.3.0",
+]

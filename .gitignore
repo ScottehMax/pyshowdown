@@ -5,6 +5,9 @@ build/
 dist/
 src/pyshowdown.egg-info
 
+# Documentation
+docs/build/
+
 .vscode/
 .python-version
 
