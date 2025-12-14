@@ -35,4 +35,4 @@ if __name__ == "__main__":
 
 ## Documentation
 
-Full documentation is available at [https://scottehmax.github.io/pyshowdown/](https://scottehmax.github.io/pyshowdown/)
+Full documentation is available at [https://docs.scotteh.me/pyshowdown/](https://docs.scotteh.me/pyshowdown/).
