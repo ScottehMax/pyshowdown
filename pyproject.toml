@@ -38,6 +38,9 @@ exclude = [
 
 [dependency-groups]
 dev = [
+    "pyright>=1.1.407",
+    "pytest>=8.4.2",
+    "pytest-cov>=7.0.0",
     "sphinx>=7.4.7",
     "sphinx-autodoc-typehints>=2.3.0",
 ]
