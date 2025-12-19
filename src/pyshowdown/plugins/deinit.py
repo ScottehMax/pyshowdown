@@ -5,7 +5,7 @@ from pyshowdown.plugins.plugin import BasePlugin
 from pyshowdown.message import Message, DeinitMessage
 
 
-class DeinitHandler(BasePlugin):
+class DeinitHandler(BasePlugin[DeinitMessage]):
     async def match(self, message: Message) -> bool:
         """Returns true if the message is a deinit message.
 
@@ -17,7 +17,7 @@ class DeinitHandler(BasePlugin):
         """
         return isinstance(message, DeinitMessage)
 
-    async def response(self, message: Message) -> None:
+    async def response(self, message: DeinitMessage) -> None:
         """Removes the room from the Client's room dict.
 
         PS also sends a deinit message if you join a room using a
@@ -25,7 +25,7 @@ class DeinitHandler(BasePlugin):
         should check if we have it first.
 
         Args:
-            message (Message): The deinit message.
+            message (DeinitMessage): The deinit message.
         """
         if message.room in self.client.rooms:
             del self.client.rooms[message.room]

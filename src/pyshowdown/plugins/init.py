@@ -6,7 +6,7 @@ from pyshowdown.plugins.plugin import BasePlugin
 from pyshowdown.message import Message, InitMessage, TimestampMessage
 
 
-class InitHandler(BasePlugin):
+class InitHandler(BasePlugin[InitMessage]):
     async def match(self, message: Message) -> bool:
         """Returns true if the message is an init message.
 
@@ -18,17 +18,17 @@ class InitHandler(BasePlugin):
         """
         return isinstance(message, InitMessage)
 
-    async def response(self, message: Message) -> None:
+    async def response(self, message: InitMessage) -> None:
         """Creates the room in the Client's room dict.
 
         Args:
-            message (Message): The init message.
+            message (InitMessage): The init message.
         """
         r = room.Room(message.room)
         self.client.rooms[r.id] = r
 
 
-class TimestampHandler(BasePlugin):
+class TimestampHandler(BasePlugin[TimestampMessage]):
     async def match(self, message: Message) -> bool:
         """Returns true if the message is a timestamp message.
 
@@ -40,14 +40,13 @@ class TimestampHandler(BasePlugin):
         """
         return isinstance(message, TimestampMessage)
 
-    async def response(self, message: Message) -> None:
+    async def response(self, message: TimestampMessage) -> None:
         """Sets the room timestamp in the Client's room dict.
 
         Args:
-            message (Message): The timestamp message.
+            message (TimestampMessage): The timestamp message.
         """
-        if isinstance(message, TimestampMessage):
-            self.client.rooms[message.room].join_time = message.timestamp
+        self.client.rooms[message.room].join_time = message.timestamp
 
 
 def setup(client: Client) -> List[BasePlugin]:

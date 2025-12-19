@@ -1,6 +1,6 @@
 [project]
 name = "pyshowdown"
-version = "0.3.0"
+version = "0.3.1"
 description = "A client library for the Pokémon Showdown! battle simulator."
 readme = "README.md"
 requires-python = ">=3.9"

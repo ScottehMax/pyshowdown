@@ -11,4 +11,8 @@ docs/build/
 .vscode/
 .python-version
 
+# deprecated config file
 config.ini
+
+# login cookies
+cookies.json

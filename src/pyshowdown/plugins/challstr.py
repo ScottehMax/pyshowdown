@@ -154,7 +154,7 @@ async def password_login(client: Client, challstr: str) -> None:
         client.print("Failed to log in after multiple attempts.")
 
 
-class ChallstrHandler(BasePlugin):
+class ChallstrHandler(BasePlugin[ChallstrMessage]):
     async def match(self, message: Message) -> bool:
         """Returns true if the message is a challstr.
 
@@ -166,18 +166,17 @@ class ChallstrHandler(BasePlugin):
         """
         return isinstance(message, ChallstrMessage)
 
-    async def response(self, message: Message) -> None:
+    async def response(self, message: ChallstrMessage) -> None:
         """Responds to a challstr message and logs in.
 
         Args:
-            message (Message): The message to respond to.
+            message (ChallstrMessage): The message to respond to.
         """
-        if isinstance(message, ChallstrMessage):
-            self.client.print("Got challstr! Trying to log in...")
-            if self.client.login_type == "password":
-                await password_login(self.client, message.challstr)
-            else:
-                self.client.print("Login type not supported.")
+        self.client.print("Got challstr! Trying to log in...")
+        if self.client.login_type == "password":
+            await password_login(self.client, message.challstr)
+        else:
+            self.client.print("Login type not supported.")
 
 
 def setup(client: Client) -> List[BasePlugin]:

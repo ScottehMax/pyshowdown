@@ -1,10 +1,12 @@
-from typing import Optional
+from typing import Generic, Optional, TypeVar
 
 from pyshowdown.client import Client
 from pyshowdown.message import Message
 
+MessageType = TypeVar("MessageType", bound=Message)
 
-class BasePlugin:
+
+class BasePlugin(Generic[MessageType]):
     # whether the plugin should respond to messages sent before joining the room
     scrollback_access: bool = False
 
@@ -30,11 +32,11 @@ class BasePlugin:
         """
         raise NotImplementedError()
 
-    async def response(self, message: Message) -> Optional[str]:
+    async def response(self, message: MessageType) -> Optional[str]:
         """Returns the response for the message.
 
         Args:
-            message (Message): The message to respond to.
+            message (MessageType): The message to respond to.
 
         Raises:
             NotImplementedError: Always, since this is a base class.
